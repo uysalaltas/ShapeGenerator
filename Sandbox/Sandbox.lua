@@ -14,8 +14,8 @@ project "Sandbox"
 	includedirs
 	{
         "%{wks.location}/ShapeGenerator/src",
-		"%{wks.location}/Teapot/Teapot/src",
-		"%{wks.location}/Teapot/Teapot/vendor/GLFW/include"
+		"%{wks.location}/vendor/Teapot/Teapot/src",
+		"%{wks.location}/vendor/Teapot/Teapot/vendor/GLFW/include"
 	}
 
 	links

@@ -1,3 +1,3 @@
 [submodule "Teapot"]
-	path = Teapot
+	path = vendor/Teapot
 	url = https://github.com/uysalaltas/Teapot

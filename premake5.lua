@@ -5,7 +5,7 @@ workspace "ShapeGenerator"
 
 outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
-include "Teapot/TeapotExternal.lua"
+include "vendor/Teapot/TeapotExternal.lua"
 include "Sandbox/Sandbox.lua"
 
 group "Core"
