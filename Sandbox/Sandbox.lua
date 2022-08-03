@@ -15,7 +15,8 @@ project "Sandbox"
 	{
         "%{wks.location}/ShapeGenerator/src",
 		"%{wks.location}/vendor/Teapot/Teapot/src",
-		"%{wks.location}/vendor/Teapot/Teapot/vendor/GLFW/include"
+		"%{wks.location}/vendor/Teapot/Teapot/vendor/GLFW/include",
+		"%{wks.location}/vendor/Teapot/Teapot/vendor/GLAD/include",
 	}
 
 	links

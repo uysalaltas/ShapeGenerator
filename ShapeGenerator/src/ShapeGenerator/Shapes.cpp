@@ -10,5 +10,10 @@ namespace Shapes
 	Shapes::~Shapes()
 	{
 		std::cout << "Shape Destructor" << std::endl;
+
 	}
+    void Shapes::ShapesUpdate()
+    {
+
+    }
 }
