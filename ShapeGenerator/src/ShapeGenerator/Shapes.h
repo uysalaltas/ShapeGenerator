@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <glad/glad.h>
 
 namespace Shapes
 {
@@ -9,6 +10,11 @@ namespace Shapes
 	public:
 		Shapes();
 		~Shapes();
+
+        void ShapesUpdate();
+
+	private:
+
 	};
 }
 

@@ -1,5 +1,5 @@
-#include "Teapot.h"
 #include "ShapeGenerator.h"
+#include "Teapot.h"
 
 class Sandbox : public Teapot::Application
 {
@@ -16,13 +16,15 @@ public:
 	void OnUpdate() override
 	{
 		//Loop
+		shp.ShapesUpdate();
 	}
+
+private:
+	Shapes::Shapes shp;
 };
 
 int main()
 {
-	Shapes::Shapes shp;
-
 	Sandbox* s = new Sandbox();
 	s->Run();
 	s->OnUpdate();
