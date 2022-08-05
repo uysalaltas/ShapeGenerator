@@ -17,6 +17,10 @@ public:
 	{
 		//Loop
 		shp.ShapesUpdate();
+		if (Teapot::Input::IsKeyPressed(TEA_KEY_A))
+		{
+			std::cout << "A pressed" << std::endl;
+		}
 	}
 
 private:
