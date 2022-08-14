@@ -11,12 +11,16 @@ project "ShapeGenerator"
 	{
 		"src/**.h",
 		"src/**.cpp",
+		"vendor/glm/glm/**.hpp",
+		"vendor/glm/glm/**.inl",
 	}
 
 	includedirs
 	{
 		"src",
 		"%{wks.location}/vendor/Teapot/Teapot/vendor/GLAD/include",
+		"vendor/glm"
+
 	}
 
 	filter "system:windows"
