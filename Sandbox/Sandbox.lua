@@ -13,8 +13,8 @@ project "Sandbox"
 
 	includedirs
 	{
-        "%{wks.location}/ShapeGenerator/src",
-        "%{wks.location}/ShapeGenerator/vendor/glm",
+		"%{wks.location}/ShapeGenerator/src",
+		"%{wks.location}/ShapeGenerator/vendor/glm",
 		"%{wks.location}/vendor/Teapot/Teapot/src",
 		"%{wks.location}/vendor/Teapot/Teapot/vendor/GLFW/include",
 		"%{wks.location}/vendor/Teapot/Teapot/vendor/GLAD/include",

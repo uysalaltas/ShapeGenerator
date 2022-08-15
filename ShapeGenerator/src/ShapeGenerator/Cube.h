@@ -7,8 +7,8 @@ namespace Shapes
 	{
 	public:
 		Cube(const float size, const glm::vec3 color);
-		virtual std::vector<GLuint> ShapeIndices();
-		virtual std::vector<Vertex> ShapeVertices();
+		std::vector<GLuint> ShapeIndices() override;
+		std::vector<Vertex> ShapeVertices() override;
 
 	private:
 		const float m_size;
