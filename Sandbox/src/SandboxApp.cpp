@@ -11,11 +11,12 @@ class Sandbox : public Teapot::Application
 public:
 	Sandbox() 
 		: cube(0.5f, glm::vec3(1.0f, 1.0f, 1.0f))
+		, cylender(0.5f, glm::vec3(1.0f, 1.0f, 1.0f))
 		, shaderBasic("src/Basic.shader")
 	{
 		va.Bind();
-        vb = new VertexBuffer(cube.ShapeVertices());
-        ib = new IndexBuffer(cube.ShapeIndices());
+        vb = new VertexBuffer(cylender.ShapeVertices());
+        ib = new IndexBuffer(cylender.ShapeIndices());
         va.AddBuffer(*vb, 0, 3, sizeof(Shapes::Vertex), (void*)0);
         va.AddBuffer(*vb, 1, 3, sizeof(Shapes::Vertex), (void*)offsetof(Shapes::Vertex, Shapes::Vertex::color));
 		va.Unbind();
@@ -44,7 +45,8 @@ public:
 		shaderBasic.SetUniformMat4f("projection", projection);
 
 		va.Bind();
-		glDrawElements(GL_TRIANGLES, cube.ShapeIndices().size(), GL_UNSIGNED_INT, 0);
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		glDrawElements(GL_TRIANGLES, cylender.ShapeIndices().size(), GL_UNSIGNED_INT, 0);
 	}
 
 	void processInput()
@@ -71,6 +73,7 @@ private:
     IndexBuffer* ib;
 
 	Shapes::Cube cube;
+	Shapes::Cylinder cylender;
 	Shader shaderBasic;
 
 	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
