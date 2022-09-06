@@ -14,6 +14,8 @@ public:
 		, cylender(0.5f, glm::vec3(1.0f, 1.0f, 1.0f))
 		, shaderBasic("src/Basic.shader")
 	{
+		camera = new Shapes::Camera(cameraPos, cameraCenter, cameraUp, (float)this->GetWindow().GetWidth(), (float)this->GetWindow().GetHeigth());
+
 		va.Bind();
         vb = new VertexBuffer(cylender.ShapeVertices());
         ib = new IndexBuffer(cylender.ShapeIndices());
@@ -23,21 +25,26 @@ public:
 		vb->Unbind();
 		ib->Unbind();
 
-		projection = glm::perspective(glm::radians(45.0f), (float)this->GetWindow().GetWidth() / (float)this->GetWindow().GetHeigth(), 0.1f, 100.0f);
+		//projection = glm::perspective(glm::radians(45.0f), (float)this->GetWindow().GetWidth() / (float)this->GetWindow().GetHeigth(), 0.1f, 100.0f);
 	}
 
 	~Sandbox()
 	{
 		delete vb;
 		delete ib;
+		delete camera;
 	}
 
 	void OnUpdate() override
 	{
-		processInput();
+		camera->UpdateProjMatrix();
 
-		view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 		model = glm::mat4(1.0f);
+		view = camera->GetViewMatrix();
+		projection = camera->GetProjMatrix();
+
+		processInput();
+		//view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
 		shaderBasic.Bind();
 		shaderBasic.SetUniformMat4f("model", model);
@@ -51,15 +58,37 @@ public:
 
 	void processInput()
 	{
-		float cameraSpeed = static_cast<float>(0.1);
-		if (Teapot::Input::IsKeyPressed(TEA_KEY_W))
-			cameraPos += cameraSpeed * cameraFront;
-		if (Teapot::Input::IsKeyPressed(TEA_KEY_S))
-			cameraPos -= cameraSpeed * cameraFront;
-		if (Teapot::Input::IsKeyPressed(TEA_KEY_A))
-			cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-		if (Teapot::Input::IsKeyPressed(TEA_KEY_D))
-			cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+		//float cameraSpeed = static_cast<float>(0.1);
+		//if (Teapot::Input::IsKeyPressed(TEA_KEY_W))
+		//	cameraPos += cameraSpeed * cameraFront;
+		//if (Teapot::Input::IsKeyPressed(TEA_KEY_S))
+		//	cameraPos -= cameraSpeed * cameraFront;
+		//if (Teapot::Input::IsKeyPressed(TEA_KEY_A))
+		//	cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+		//if (Teapot::Input::IsKeyPressed(TEA_KEY_D))
+		//	cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
+
+		currentMousePosClick.x = Teapot::Input::GetMouseX();
+		currentMousePosClick.y = Teapot::Input::GetMouseY();
+
+		if (Teapot::Input::IsMouseButtonPressed(GLFW_MOUSE_BUTTON_MIDDLE))
+		{
+			if (firstMouseClick)
+			{
+				lastMousePosRightClick.x = Teapot::Input::GetMouseX();
+				lastMousePosRightClick.y = Teapot::Input::GetMouseY();
+				firstMouseClick = false;
+			}
+
+			camera->ArcBallCamera((lastMousePosRightClick.x - Teapot::Input::GetMouseX()), (lastMousePosRightClick.y - Teapot::Input::GetMouseY()));
+			lastMousePosRightClick.x = Teapot::Input::GetMouseX();
+			lastMousePosRightClick.y = Teapot::Input::GetMouseY();
+		}
+		else
+		{
+			firstMouseClick = true;
+		}
+
 	}
 
 public:
@@ -71,16 +100,21 @@ private:
     VertexArray va;
     VertexBuffer* vb;
     IndexBuffer* ib;
+	Shapes::Camera* camera;
 
 	Shapes::Cube cube;
 	Shapes::Cylinder cylender;
 	Shader shaderBasic;
 
-	glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+	glm::vec3 cameraPos = glm::vec3(5.0f, 5.0f, 5.0f);
 	glm::vec3 cameraCenter = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
-	glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
+	glm::vec3 cameraUp = glm::vec3(0.0f, 0.0f, 1.0f);
 	float deltaTime = 0.0f;
+
+	glm::vec2 lastMousePosRightClick = glm::vec2(0.0f, 0.0f);
+	glm::vec2 currentMousePosClick = glm::vec2(0.0f, 0.0f);;
+	bool firstMouseClick;
 };
 
 int main()
