@@ -23,161 +23,130 @@ namespace Shapes
 
 	void Cylinder::BuildVertices()
 	{
-		std::vector<Vertex> tmpVertices;
-		int i, j, k;
-		float x, y, z, s, t, radius;
-
-		for (i = 0; i <= m_stackCount; ++i)
+		// put side vertices to arrays
+		for (int i = 0; i < 2; ++i)
 		{
-			z = -(m_height * 0.5f) + (float)i / m_stackCount * m_height;
-			radius = m_baseRadius + (float)i / m_stackCount * (m_topRadius - m_baseRadius);
+			float h = -m_height / 2.0f + i * m_height;           // z value; -h/2 to h/2
+			float t = 1.0f - i;                              // vertical tex coord; 1 to 0
 
-			for (j = 0, k = 0; j <= m_sectorCount; ++j, k += 3)
+			for (int j = 0, k = 0; j <= m_sectorCount; ++j, k += 3)
 			{
-				x = m_unitCircleVertices[k];
-				y = m_unitCircleVertices[k + 1];
+				float ux = m_unitCircleVertices[k];
+				float uy = m_unitCircleVertices[k + 1];
+				float uz = m_unitCircleVertices[k + 2];
+				
+				Vertex tmp;
+				// position vector
+				tmp.position.x = (ux * m_baseRadius);
+				tmp.position.y = (uy * m_baseRadius);
+				tmp.position.z = (h);
 
-				Vertex vertex;
-				vertex.position.x = x * radius;
-				vertex.position.y = y * radius;
-				vertex.position.z = z;
-				vertex.color.x = 1.0;
-				vertex.color.y = 1.0;
-				vertex.color.z = 1.0;
-				tmpVertices.push_back(vertex);
+				tmp.color.x = 1.0;
+				tmp.color.y = 1.0;
+				tmp.color.z = 1.0;
+
+				m_vertices.push_back(tmp);
 			}
 		}
 
-        Vertex v1, v2, v3, v4;      // 4 vertex positions v1, v2, v3, v4
-        std::vector<float> n;       // 1 face normal
-        int vi1, vi2;               // indices
-        int index = 0;
+		// the starting index for the base/top surface
+		//NOTE: it is used for generating indices later
+		m_baseIndex = (int)m_vertices.size();
+		m_topIndex = m_baseIndex + m_sectorCount + 1; // include center vertex
 
-        // v2-v4 <== stack at i+1
-        // | \ |
-        // v1-v3 <== stack at i
-        for (i = 0; i < m_stackCount; ++i)
-        {
-            vi1 = i * (m_sectorCount + 1);            // index of tmpVertices
-            vi2 = (i + 1) * (m_sectorCount + 1);
+		// put base and top vertices to arrays
+		for (int i = 0; i < 2; ++i)
+		{
+			float h = -m_height / 2.0f + i * m_height;           // z value; -h/2 to h/2
+			float nz = -1 + i * 2;                           // z value of normal; -1 to 1
 
-            for (j = 0; j < m_sectorCount; ++j, ++vi1, ++vi2)
-            {
-                v1 = tmpVertices[vi1];
-                v2 = tmpVertices[vi2];
-                v3 = tmpVertices[vi1 + 1];
-                v4 = tmpVertices[vi2 + 1];
+			Vertex centerVertex;
+			// center point
+			centerVertex.position.x = 0.0f;
+			centerVertex.position.y = 0.0f;
+			centerVertex.position.z = h;
 
-                // put quad vertices: v1-v2-v3-v4
-                m_vertices.push_back(v1);
-                m_vertices.push_back(v2);
-                m_vertices.push_back(v3);
-                m_vertices.push_back(v4);
+			centerVertex.color.x = 1.0;
+			centerVertex.color.y = 1.0;
+			centerVertex.color.z = 1.0;
+			
+			m_vertices.push_back(centerVertex);
 
-                // put indices of a quad
-                m_indices.push_back(index);
-                m_indices.push_back(index + 2);
-                m_indices.push_back(index + 1);
+			for (int j = 0, k = 0; j < m_sectorCount; ++j, k += 3)
+			{
+				float ux = m_unitCircleVertices[k];
+				float uy = m_unitCircleVertices[k + 1];
 
-                m_indices.push_back(index + 1);
-                m_indices.push_back(index + 2);
-                m_indices.push_back(index + 3);
+				Vertex tmp;
+				tmp.position.x = (ux * m_topRadius);
+				tmp.position.y = (uy * m_topRadius);
+				tmp.position.z = (h);
 
-                //// vertical line per quad: v1-v2
-                //lineIndices.push_back(index);
-                //lineIndices.push_back(index + 1);
-                //// horizontal line per quad: v2-v4
-                //lineIndices.push_back(index + 1);
-                //lineIndices.push_back(index + 3);
-                //if (i == 0)
-                //{
-                //    lineIndices.push_back(index);
-                //    lineIndices.push_back(index + 2);
-                //}
+				tmp.color.x = 1.0;
+				tmp.color.y = 1.0;
+				tmp.color.z = 1.0;
 
-                index += 4;     // for next
-            }
-        }
-
-        // remember where the base index starts
-        m_baseIndex = (unsigned int)m_indices.size();
-        unsigned int baseVertexIndex = (unsigned int)m_vertices.size() / 3;
-
-        // put vertices of base of cylinder
-        z = -m_height * 0.5f;
-        
-        Vertex baseVertex;
-        baseVertex.position = {0, 0, z};
-        baseVertex.color = {1.0f, 1.0f, 1.0f};
-        m_vertices.push_back(baseVertex);
-
-        for (i = 0, j = 0; i < m_sectorCount; ++i, j += 3)
-        {
-            x = m_unitCircleVertices[j];
-            y = m_unitCircleVertices[j + 1];
-            Vertex tmpVertex;
-            tmpVertex.position = { x * m_baseRadius, y * m_baseRadius, z };
-            tmpVertex.color = { 1.0f, 1.0f, 1.0f };
-        }
-
-        // put indices for base
-        for (i = 0, k = baseVertexIndex + 1; i < m_sectorCount; ++i, ++k)
-        {
-            if (i < m_sectorCount - 1)
-            {
-                m_indices.push_back(baseVertexIndex);
-                m_indices.push_back(k + 1);
-                m_indices.push_back(k);
-            }
-            else
-            {
-                m_indices.push_back(baseVertexIndex);
-                m_indices.push_back(baseVertexIndex + 1);
-                m_indices.push_back(k);
-            }
-        }
-
-        // remember where the top index starts
-        m_topIndex = (unsigned int)m_indices.size();
-        unsigned int topVertexIndex = (unsigned int)m_vertices.size() / 3;
-
-        // put vertices of top of cylinder
-        z = m_height * 0.5f;
-        Vertex topVertex;
-        baseVertex.position = { 0, 0, z };
-        baseVertex.color = { 1.0f, 1.0f, 1.0f };
-        m_vertices.push_back(topVertex);
-
-        for (i = 0, j = 0; i < m_sectorCount; ++i, j += 3)
-        {
-            x = m_unitCircleVertices[j];
-            y = m_unitCircleVertices[j + 1];
-
-            Vertex tmpVertex;
-            tmpVertex.position = { x * m_topRadius, y * m_topRadius, z };
-            tmpVertex.color = { 1.0f, 1.0f, 1.0f };
-        }
-
-        for (i = 0, k = topVertexIndex + 1; i < m_sectorCount; ++i, ++k)
-        {
-            if (i < m_sectorCount - 1)
-            {
-                m_indices.push_back(topVertexIndex);
-                m_indices.push_back(k);
-                m_indices.push_back(k + 1);
-            }
-            else
-            {
-                m_indices.push_back(topVertexIndex);
-                m_indices.push_back(k);
-                m_indices.push_back(topVertexIndex + 1);
-            }
-        }
+				m_vertices.push_back(tmp);
+			}
+		}
 	}
 
 	void Cylinder::BuildIndices()
 	{
+		// generate CCW index list of cylinder triangles
+		int k1 = 0;                         // 1st vertex index at base
+		int k2 = m_sectorCount + 1;           // 1st vertex index at top
 
+		// indices for the side surface
+		for (int i = 0; i < m_sectorCount; ++i, ++k1, ++k2)
+		{
+			// 2 triangles per sector
+			// k1 => k1+1 => k2
+			m_indices.push_back(k1);
+			m_indices.push_back(k1 + 1);
+			m_indices.push_back(k2);
+
+			// k2 => k1+1 => k2+1
+			m_indices.push_back(k2);
+			m_indices.push_back(k1 + 1);
+			m_indices.push_back(k2 + 1);
+		}
+
+		// indices for the base surface
+		//NOTE: baseCenterIndex and topCenterIndices are pre-computed during vertex generation
+		//      please see the previous code snippet
+		for (int i = 0, k = m_baseIndex + 1; i < m_sectorCount; ++i, ++k)
+		{
+			if (i < m_sectorCount - 1)
+			{
+				m_indices.push_back(m_baseIndex);
+				m_indices.push_back(k + 1);
+				m_indices.push_back(k);
+			}
+			else // last triangle
+			{
+				m_indices.push_back(m_baseIndex);
+				m_indices.push_back(m_baseIndex + 1);
+				m_indices.push_back(k);
+			}
+		}
+
+		// indices for the top surface
+		for (int i = 0, k = m_topIndex + 1; i < m_sectorCount; ++i, ++k)
+		{
+			if (i < m_sectorCount - 1)
+			{
+				m_indices.push_back(m_topIndex);
+				m_indices.push_back(k);
+				m_indices.push_back(k + 1);
+			}
+			else // last triangle
+			{
+				m_indices.push_back(m_topIndex);
+				m_indices.push_back(k);
+				m_indices.push_back(m_topIndex + 1);
+			}
+		}
 	}
 
 	void Cylinder::BuildUnitCircleVertices()
@@ -186,7 +155,6 @@ namespace Shapes
 		float sectorStep = 2 * PI / m_sectorCount;
 		float sectorAngle;  // radian
 
-		std::vector<float>().swap(m_unitCircleVertices);
 		for (int i = 0; i <= m_sectorCount; ++i)
 		{
 			sectorAngle = i * sectorStep;

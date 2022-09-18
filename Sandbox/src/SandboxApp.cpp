@@ -24,8 +24,6 @@ public:
 		va.Unbind();
 		vb->Unbind();
 		ib->Unbind();
-
-		//projection = glm::perspective(glm::radians(45.0f), (float)this->GetWindow().GetWidth() / (float)this->GetWindow().GetHeigth(), 0.1f, 100.0f);
 	}
 
 	~Sandbox()
@@ -44,7 +42,6 @@ public:
 		projection = camera->GetProjMatrix();
 
 		processInput();
-		//view = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
 
 		shaderBasic.Bind();
 		shaderBasic.SetUniformMat4f("model", model);
@@ -52,22 +49,12 @@ public:
 		shaderBasic.SetUniformMat4f("projection", projection);
 
 		va.Bind();
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glDrawElements(GL_TRIANGLES, cylender.ShapeIndices().size(), GL_UNSIGNED_INT, 0);
 	}
 
 	void processInput()
 	{
-		//float cameraSpeed = static_cast<float>(0.1);
-		//if (Teapot::Input::IsKeyPressed(TEA_KEY_W))
-		//	cameraPos += cameraSpeed * cameraFront;
-		//if (Teapot::Input::IsKeyPressed(TEA_KEY_S))
-		//	cameraPos -= cameraSpeed * cameraFront;
-		//if (Teapot::Input::IsKeyPressed(TEA_KEY_A))
-		//	cameraPos -= glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-		//if (Teapot::Input::IsKeyPressed(TEA_KEY_D))
-		//	cameraPos += glm::normalize(glm::cross(cameraFront, cameraUp)) * cameraSpeed;
-
 		currentMousePosClick.x = Teapot::Input::GetMouseX();
 		currentMousePosClick.y = Teapot::Input::GetMouseY();
 
@@ -88,7 +75,6 @@ public:
 		{
 			firstMouseClick = true;
 		}
-
 	}
 
 public:
