@@ -11,7 +11,7 @@ class Sandbox : public Teapot::Application
 public:
 	Sandbox() 
 		: cube(0.5f, glm::vec3(1.0f, 1.0f, 1.0f))
-		, cylender(0.5f, glm::vec3(1.0f, 1.0f, 1.0f))
+		, cylender(1.0f, glm::vec3(1.0f, 1.0f, 1.0f))
 		, shaderBasic("src/Basic.shader")
 	{
 		camera = new Shapes::Camera(cameraPos, cameraCenter, cameraUp, (float)this->GetWindow().GetWidth(), (float)this->GetWindow().GetHeigth());
@@ -21,6 +21,7 @@ public:
         ib = new IndexBuffer(cylender.ShapeIndices());
         va.AddBuffer(*vb, 0, 3, sizeof(Shapes::Vertex), (void*)0);
         va.AddBuffer(*vb, 1, 3, sizeof(Shapes::Vertex), (void*)offsetof(Shapes::Vertex, Shapes::Vertex::color));
+        va.AddBuffer(*vb, 2, 3, sizeof(Shapes::Vertex), (void*)offsetof(Shapes::Vertex, Shapes::Vertex::normal));
 		va.Unbind();
 		vb->Unbind();
 		ib->Unbind();
@@ -41,19 +42,20 @@ public:
 		view = camera->GetViewMatrix();
 		projection = camera->GetProjMatrix();
 
-		processInput();
+		ProcessInput();
 
 		shaderBasic.Bind();
 		shaderBasic.SetUniformMat4f("model", model);
 		shaderBasic.SetUniformMat4f("view", view);
 		shaderBasic.SetUniformMat4f("projection", projection);
+		shaderBasic.SetUniformVec3f("camPos", camera->GetEye());
 
 		va.Bind();
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		glDrawElements(GL_TRIANGLES, cylender.ShapeIndices().size(), GL_UNSIGNED_INT, 0);
 	}
 
-	void processInput()
+	void ProcessInput()
 	{
 		currentMousePosClick.x = Teapot::Input::GetMouseX();
 		currentMousePosClick.y = Teapot::Input::GetMouseY();

@@ -45,6 +45,10 @@ namespace Shapes
 				tmp.color.y = 1.0;
 				tmp.color.z = 1.0;
 
+				tmp.normal.x = ux;
+				tmp.normal.y = uy;
+				tmp.normal.z = uz;
+
 				m_vertices.push_back(tmp);
 			}
 		}
@@ -69,6 +73,10 @@ namespace Shapes
 			centerVertex.color.x = 1.0;
 			centerVertex.color.y = 1.0;
 			centerVertex.color.z = 1.0;
+
+			centerVertex.normal.x = 0;
+			centerVertex.normal.y = 0;
+			centerVertex.normal.z = nz;
 			
 			m_vertices.push_back(centerVertex);
 
@@ -85,6 +93,10 @@ namespace Shapes
 				tmp.color.x = 1.0;
 				tmp.color.y = 1.0;
 				tmp.color.z = 1.0;
+
+				tmp.normal.x = 0;
+				tmp.normal.y = 0;
+				tmp.normal.z = nz;
 
 				m_vertices.push_back(tmp);
 			}

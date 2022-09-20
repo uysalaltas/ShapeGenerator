@@ -19,8 +19,8 @@ namespace Shapes
 		const float m_size;
 		const glm::vec3 m_color;
 		const int m_stackCount = 1;
-		const int m_sectorCount = 36;
-		const float m_height = 1.0f;
+		const int m_sectorCount = 12;
+		const float m_height = 2.0f;
 		const float m_baseRadius = 1.0f;
 		const float m_topRadius = 1.0f;
 		
