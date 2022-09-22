@@ -1,4 +1,5 @@
 #include "Cylinder.h"
+#include <glm/gtx/string_cast.hpp>
 
 namespace Shapes
 {
@@ -23,11 +24,17 @@ namespace Shapes
 
 	void Cylinder::BuildVertices()
 	{
-		// put side vertices to arrays
-		for (int i = 0; i < 2; ++i)
+		// ------------------------
+		// SIDE
+		// ------------------------
+
+		std::vector<Vertex> tmp_vertices = {};
+
+		for (int i = 0; i <= m_stackCount; ++i)
 		{
-			float h = -m_height / 2.0f + i * m_height;           // z value; -h/2 to h/2
-			float t = 1.0f - i;                              // vertical tex coord; 1 to 0
+			float h = -(m_height / 2.0f) + (float)i / m_stackCount * m_height;			// z value; -h/2 to h/2
+			float radius = m_baseRadius + (float)i / m_stackCount * (m_topRadius - m_baseRadius);
+			float t = 1.0f - (float)i / m_stackCount;									// vertical tex coord; 1 to 0
 
 			for (int j = 0, k = 0; j <= m_sectorCount; ++j, k += 3)
 			{
@@ -36,36 +43,90 @@ namespace Shapes
 				float uz = m_unitCircleVertices[k + 2];
 				
 				Vertex tmp;
-				// position vector
-				tmp.position.x = (ux * m_baseRadius);
-				tmp.position.y = (uy * m_baseRadius);
+				tmp.position.x = (ux * radius);
+				tmp.position.y = (uy * radius);
 				tmp.position.z = (h);
 
 				tmp.color.x = 1.0;
 				tmp.color.y = 1.0;
 				tmp.color.z = 1.0;
 
-				tmp.normal.x = ux;
-				tmp.normal.y = uy;
-				tmp.normal.z = uz;
+				//tmp.normal.x = ux;
+				//tmp.normal.y = uy;
+				//tmp.normal.z = uz;
 
-				m_vertices.push_back(tmp);
+				tmp_vertices.push_back(tmp);
 			}
 		}
 
-		// the starting index for the base/top surface
-		//NOTE: it is used for generating indices later
-		m_baseIndex = (int)m_vertices.size();
-		m_topIndex = m_baseIndex + m_sectorCount + 1; // include center vertex
+		// ------------------------
+		// FLAT NORMALS
+		// ------------------------
+		Vertex v1, v2, v3, v4;
+		glm::vec3 n;
+		int vi1, vi2, i, j;
+		int index = 0;
 
-		// put base and top vertices to arrays
+		// v2-v4 <== stack at i+1
+		// | \ |
+		// v1-v3 <== stack at i
+
+		std::cout << m_vertices.size() << std::endl;
+
+		for (i = 0; i < m_stackCount; ++i)
+		{
+			vi1 = i * (m_sectorCount + 1);
+			vi2 = (i + 1) * (m_sectorCount + 1);
+
+			for (j = 0; j < m_sectorCount; ++j, ++vi1, ++vi2)
+			{
+				std::cout << " vi1 " << vi1 << " vi2 " << vi2 << std::endl;
+
+				v1 = tmp_vertices[vi1];
+				v2 = tmp_vertices[vi2];
+				v3 = tmp_vertices[vi1 + 1];
+				v4 = tmp_vertices[vi2 + 1];
+
+				// compute a face normal of v1-v3-v2
+				n = ComputeFaceNormals(v1, v3, v2);
+				std::cout << glm::to_string(n) << std::endl;
+				v1.normal = n;
+				v2.normal = n;
+				v3.normal = n;
+				v4.normal = n;
+
+				m_vertices.push_back(v1);
+				m_vertices.push_back(v2);
+				m_vertices.push_back(v3);
+				m_vertices.push_back(v4);
+
+				// k1 => k1+1 => k2
+				m_indices.push_back(index);
+				m_indices.push_back(index + 2);
+				m_indices.push_back(index + 1);
+
+				// k2 => k1+1 => k2+1
+				m_indices.push_back(index + 1);
+				m_indices.push_back(index + 2);
+				m_indices.push_back(index + 3);
+
+				index += 4;
+			}
+		}
+
+		//------------------------
+		//BASE AND TOP
+		//------------------------
+
+		m_baseIndex = (int)m_vertices.size();
+		m_topIndex = m_baseIndex + m_sectorCount + 1;
+
 		for (int i = 0; i < 2; ++i)
 		{
-			float h = -m_height / 2.0f + i * m_height;           // z value; -h/2 to h/2
-			float nz = -1 + i * 2;                           // z value of normal; -1 to 1
+			float h = -m_height / 2.0f + i * m_height;			// z value; -h/2 to h/2
+			float nz = -1 + i * 2;								// z value of normal; -1 to 1
 
 			Vertex centerVertex;
-			// center point
 			centerVertex.position.x = 0.0f;
 			centerVertex.position.y = 0.0f;
 			centerVertex.position.z = h;
@@ -105,28 +166,7 @@ namespace Shapes
 
 	void Cylinder::BuildIndices()
 	{
-		// generate CCW index list of cylinder triangles
-		int k1 = 0;                         // 1st vertex index at base
-		int k2 = m_sectorCount + 1;           // 1st vertex index at top
-
-		// indices for the side surface
-		for (int i = 0; i < m_sectorCount; ++i, ++k1, ++k2)
-		{
-			// 2 triangles per sector
-			// k1 => k1+1 => k2
-			m_indices.push_back(k1);
-			m_indices.push_back(k1 + 1);
-			m_indices.push_back(k2);
-
-			// k2 => k1+1 => k2+1
-			m_indices.push_back(k2);
-			m_indices.push_back(k1 + 1);
-			m_indices.push_back(k2 + 1);
-		}
-
 		// indices for the base surface
-		//NOTE: baseCenterIndex and topCenterIndices are pre-computed during vertex generation
-		//      please see the previous code snippet
 		for (int i = 0, k = m_baseIndex + 1; i < m_sectorCount; ++i, ++k)
 		{
 			if (i < m_sectorCount - 1)
@@ -174,5 +214,39 @@ namespace Shapes
 			m_unitCircleVertices.push_back(sin(sectorAngle)); // y
 			m_unitCircleVertices.push_back(0);                // z
 		}
+	}
+
+	glm::vec3 Cylinder::ComputeFaceNormals(Vertex& v1, Vertex& v2, Vertex& v3)
+	{
+		const float EPSILON = 0.000001f;
+
+		glm::vec3 normal = glm::vec3(0.0f, 0.0f, 0.0f);
+		float nx, ny, nz;
+
+		// find 2 edge vectors: v1-v2, v1-v3
+		float ex1 = v2.position.x - v1.position.x;
+		float ey1 = v2.position.y - v1.position.y;
+		float ez1 = v2.position.z - v1.position.z;
+		float ex2 = v3.position.x - v1.position.x;
+		float ey2 = v3.position.y - v1.position.y;
+		float ez2 = v3.position.z - v1.position.z;
+
+		// cross product: e1 x e2
+		nx = ey1 * ez2 - ez1 * ey2;
+		ny = ez1 * ex2 - ex1 * ez2;
+		nz = ex1 * ey2 - ey1 * ex2;
+
+		// normalize only if the length is > 0
+		float length = sqrtf(nx * nx + ny * ny + nz * nz);
+		if (length > EPSILON)
+		{
+			// normalize
+			float lengthInv = 1.0f / length;
+			normal.x = nx * lengthInv;
+			normal.y = ny * lengthInv;
+			normal.z = nz * lengthInv;
+		}
+
+		return normal;
 	}
 }

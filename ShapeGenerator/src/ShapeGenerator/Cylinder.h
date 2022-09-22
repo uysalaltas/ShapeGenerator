@@ -15,11 +15,13 @@ namespace Shapes
 		void BuildIndices();
 		void BuildUnitCircleVertices();
 
+		glm::vec3 ComputeFaceNormals(Vertex &v1, Vertex &v2, Vertex &v3);
+
 	private:
 		const float m_size;
 		const glm::vec3 m_color;
-		const int m_stackCount = 1;
-		const int m_sectorCount = 12;
+		const int m_stackCount = 2;
+		const int m_sectorCount = 8;
 		const float m_height = 2.0f;
 		const float m_baseRadius = 1.0f;
 		const float m_topRadius = 1.0f;
