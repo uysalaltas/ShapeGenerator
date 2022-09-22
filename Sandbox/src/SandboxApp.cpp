@@ -9,9 +9,10 @@
 class Sandbox : public Teapot::Application
 {
 public:
-	Sandbox() 
+	Sandbox()
 		: cube(0.5f, glm::vec3(1.0f, 1.0f, 1.0f))
 		, cylender(1.0f, glm::vec3(1.0f, 1.0f, 1.0f))
+		, plane(3.0f, glm::vec3(0.78f, 0.95f, 1.0f))
 		, shaderBasic("src/Basic.shader")
 	{
 		camera = new Shapes::Camera(cameraPos, cameraCenter, cameraUp, (float)this->GetWindow().GetWidth(), (float)this->GetWindow().GetHeigth());
@@ -25,6 +26,16 @@ public:
 		va.Unbind();
 		vb->Unbind();
 		ib->Unbind();
+
+		vaPlane.Bind();
+		vbPlane = new VertexBuffer(plane.ShapeVertices());
+		ibPlane = new IndexBuffer(plane.ShapeIndices());
+		vaPlane.AddBuffer(*vbPlane, 0, 3, sizeof(Shapes::Vertex), (void*)0);
+		vaPlane.AddBuffer(*vbPlane, 1, 3, sizeof(Shapes::Vertex), (void*)offsetof(Shapes::Vertex, Shapes::Vertex::color));
+		vaPlane.AddBuffer(*vbPlane, 2, 3, sizeof(Shapes::Vertex), (void*)offsetof(Shapes::Vertex, Shapes::Vertex::normal));
+		vaPlane.Unbind();
+		vbPlane->Unbind();
+		ibPlane->Unbind();
 	}
 
 	~Sandbox()
@@ -50,9 +61,13 @@ public:
 		shaderBasic.SetUniformMat4f("projection", projection);
 		shaderBasic.SetUniformVec3f("camPos", camera->GetEye());
 
-		va.Bind();
+		//va.Bind();
+		////glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		//glDrawElements(GL_TRIANGLES, cylender.ShapeIndices().size(), GL_UNSIGNED_INT, 0);
+
+		vaPlane.Bind();
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		glDrawElements(GL_TRIANGLES, cylender.ShapeIndices().size(), GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, plane.ShapeIndices().size(), GL_UNSIGNED_INT, 0);
 	}
 
 	void ProcessInput()
@@ -88,10 +103,16 @@ private:
     VertexArray va;
     VertexBuffer* vb;
     IndexBuffer* ib;
-	Shapes::Camera* camera;
 
+	VertexArray vaPlane;
+	VertexBuffer* vbPlane;
+	IndexBuffer* ibPlane;
+
+	Shapes::Camera* camera;
 	Shapes::Cube cube;
 	Shapes::Cylinder cylender;
+	Shapes::Plane plane;
+	
 	Shader shaderBasic;
 
 	glm::vec3 cameraPos = glm::vec3(5.0f, 5.0f, 5.0f);

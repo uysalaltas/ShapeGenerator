@@ -80,7 +80,7 @@ namespace Shapes
 
 			for (j = 0; j < m_sectorCount; ++j, ++vi1, ++vi2)
 			{
-				std::cout << " vi1 " << vi1 << " vi2 " << vi2 << std::endl;
+				//std::cout << " vi1 " << vi1 << " vi2 " << vi2 << std::endl;
 
 				v1 = tmp_vertices[vi1];
 				v2 = tmp_vertices[vi2];
@@ -89,7 +89,7 @@ namespace Shapes
 
 				// compute a face normal of v1-v3-v2
 				n = ComputeFaceNormals(v1, v3, v2);
-				std::cout << glm::to_string(n) << std::endl;
+				//std::cout << glm::to_string(n) << std::endl;
 				v1.normal = n;
 				v2.normal = n;
 				v3.normal = n;
