@@ -23,6 +23,8 @@ namespace Shapes
 
 	void Plane::BuildVertices()
 	{
+		float offset = (m_slice - 1) / 2;
+
 		for (int row = 0; row < m_slice; row++)
 		{
 			for (int col = 0; col < m_slice; col++)
@@ -30,13 +32,13 @@ namespace Shapes
 				m_vertices.push_back(
 					Vertex
 					{
-						glm::vec3((float)col, (float)row, 0.0f),
+						glm::vec3((float)col - offset, (float)row - offset, 0.0f),
 						m_color,
 						glm::vec3(0, 0, 1)
 					}
 				);
 
-				std::cout << glm::to_string(glm::vec3((float)col, (float)row, 0.0f)) << std::endl;
+				//std::cout << glm::to_string(glm::vec3((float)col, (float)row, 0.0f)) << std::endl;
 			}
 		}
 	}

@@ -43,9 +43,9 @@ namespace Shapes
 				float uz = m_unitCircleVertices[k + 2];
 				
 				Vertex tmp;
-				tmp.position.x = (ux * radius);
-				tmp.position.y = (uy * radius);
-				tmp.position.z = (h);
+				tmp.position.x = (ux * radius) * m_size;
+				tmp.position.y = (uy * radius) * m_size;
+				tmp.position.z = (h) * m_size;
 
 				tmp.color.x = 1.0;
 				tmp.color.y = 1.0;
@@ -129,7 +129,7 @@ namespace Shapes
 			Vertex centerVertex;
 			centerVertex.position.x = 0.0f;
 			centerVertex.position.y = 0.0f;
-			centerVertex.position.z = h;
+			centerVertex.position.z = h * m_size;
 
 			centerVertex.color.x = 1.0;
 			centerVertex.color.y = 1.0;
@@ -147,9 +147,9 @@ namespace Shapes
 				float uy = m_unitCircleVertices[k + 1];
 
 				Vertex tmp;
-				tmp.position.x = (ux * m_topRadius);
-				tmp.position.y = (uy * m_topRadius);
-				tmp.position.z = (h);
+				tmp.position.x = (ux * m_topRadius) * m_size;
+				tmp.position.y = (uy * m_topRadius) * m_size;
+				tmp.position.z = (h) * m_size;
 
 				tmp.color.x = 1.0;
 				tmp.color.y = 1.0;
