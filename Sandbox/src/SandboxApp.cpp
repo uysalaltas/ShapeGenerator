@@ -4,27 +4,27 @@
 #include "VertexArray.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
-#include "ShadowBuffer.h"
 #include "Shader.h"
 
 class Sandbox : public Teapot::Application
 {
 public:
 	Sandbox()
-		: cube(0.5f, glm::vec3(1.0f, 1.0f, 1.0f))
-		, cylender(0.30f, glm::vec3(1.0f, 1.0f, 1.0f))
+		: cylender(0.30f, glm::vec3(1.0f, 1.0f, 1.0f))
 		, plane(3.0f, glm::vec3(0.78f, 0.95f, 1.0f))
-		, shaderBasic("src/Basic.shader")
 		, shaderDepthBasic("src/BasicDepth.shader")
+		, shaderDepthDebug("src/BasicDepthDebug.shader")
+		, shaderBasic("src/Basic.shader")
 	{
 		camera = new Shapes::Camera(cameraPos, cameraCenter, cameraUp, (float)this->GetWindow().GetWidth(), (float)this->GetWindow().GetHeigth());
 
+#pragma region "Object"
 		va.Bind();
-        vb = new VertexBuffer(cylender.ShapeVertices());
-        ib = new IndexBuffer(cylender.ShapeIndices());
-        va.AddBuffer(*vb, 0, 3, sizeof(Shapes::Vertex), (void*)0);
-        va.AddBuffer(*vb, 1, 3, sizeof(Shapes::Vertex), (void*)offsetof(Shapes::Vertex, Shapes::Vertex::color));
-        va.AddBuffer(*vb, 2, 3, sizeof(Shapes::Vertex), (void*)offsetof(Shapes::Vertex, Shapes::Vertex::normal));
+		vb = new VertexBuffer(cylender.ShapeVertices());
+		ib = new IndexBuffer(cylender.ShapeIndices());
+		va.AddBuffer(*vb, 0, 3, sizeof(Shapes::Vertex), (void*)0);
+		va.AddBuffer(*vb, 1, 3, sizeof(Shapes::Vertex), (void*)offsetof(Shapes::Vertex, Shapes::Vertex::color));
+		va.AddBuffer(*vb, 2, 3, sizeof(Shapes::Vertex), (void*)offsetof(Shapes::Vertex, Shapes::Vertex::normal));
 		va.Unbind();
 		vb->Unbind();
 		ib->Unbind();
@@ -41,12 +41,31 @@ public:
 
 		modelCylendir = glm::mat4(1.0f);
 		modelPlatform = glm::mat4(1.0f);
+		modelPlatform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -0.3f));
+#pragma endregion
 
-		modelPlatform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -0.30f));
+		glGenFramebuffers(1, &depthMapFBO);
+		glGenTextures(1, &depthMapTexture);
+		glBindTexture(GL_TEXTURE_2D, depthMapTexture);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
+			1024, 1024, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-		sb = new ShadowBuffer();
+		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMapTexture, 0);
+		glDrawBuffer(GL_NONE);
+		glReadBuffer(GL_NONE);
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		
+		// shader configuration
+		// --------------------
 		shaderBasic.Bind();
 		shaderBasic.SetUniform1i("shadowMap", 1);
+		shaderDepthDebug.Bind();
+		shaderDepthDebug.SetUniform1i("depthMap", 0);
 	}
 
 	~Sandbox()
@@ -54,26 +73,27 @@ public:
 		delete vb;
 		delete ib;
 		delete camera;
-		delete sb;
 	}
 
 	void OnUpdate() override
 	{
-#pragma region "Shadow"
-		glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 10.0f);
-		glm::vec3 lightPos(10.0f, 10.0f, 10.0f);
-		glm::mat4 lightView = glm::lookAt(lightPos, glm::vec3(0.0f), glm::vec3(0.0, 0.0, 1.0));
+		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		float near_plane = 1.0f, far_plane = 18.0f;
+		glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
+		glm::mat4 lightView = glm::lookAt(
+			lightPos,
+			glm::vec3(0.0f, 0.0f, 0.0f),
+			glm::vec3(0.0f, 0.0f, 1.0f)
+		);
 		glm::mat4 lightSpaceMatrix = lightProjection * lightView;
 		shaderDepthBasic.Bind();
 		shaderDepthBasic.SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
-
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glViewport(0, 0, 1024, 1024);
-		sb->BindFrameBuffer();
+		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+		glClear(GL_DEPTH_BUFFER_BIT);
 		RenderScene(shaderDepthBasic);
-		sb->UnbindFrameBuffer();
-#pragma endregion
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 		glViewport(0, 0, 1280, 720);
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
@@ -83,13 +103,19 @@ public:
 		projection = camera->GetProjMatrix();
 		ProcessInput();
 		shaderBasic.Bind();
-		shaderBasic.SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
 		shaderBasic.SetUniformMat4f("view", view);
 		shaderBasic.SetUniformMat4f("projection", projection);
+		shaderBasic.SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
 		shaderBasic.SetUniformVec3f("camPos", camera->GetEye());
 		shaderBasic.SetUniformVec3f("lightPos", lightPos);
-		sb->BindTexture();
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, depthMapTexture);
 		RenderScene(shaderBasic);
+
+		shaderDepthDebug.Bind();
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, depthMapTexture);
+		//RenderQuad();
 	}
 
 	void ProcessInput()
@@ -118,7 +144,6 @@ public:
 
 	void RenderScene(Shader& shader)
 	{
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		shader.SetUniformMat4f("model", modelCylendir);
 		va.Bind();
 		glDrawElements(GL_TRIANGLES, cylender.ShapeIndices().size(), GL_UNSIGNED_INT, 0);
@@ -126,6 +151,33 @@ public:
 		shader.SetUniformMat4f("model", modelPlatform);
 		vaPlane.Bind();
 		glDrawElements(GL_TRIANGLES, plane.ShapeIndices().size(), GL_UNSIGNED_INT, 0);
+	}
+
+	void RenderQuad()
+	{
+		if (quadVAO == 0)
+		{
+			float quadVertices[] = {
+				// positions        // texture Coords
+				-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
+				-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+				 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+				 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+			};
+			// setup plane VAO
+			glGenVertexArrays(1, &quadVAO);
+			glGenBuffers(1, &quadVBO);
+			glBindVertexArray(quadVAO);
+			glBindBuffer(GL_ARRAY_BUFFER, quadVBO);
+			glBufferData(GL_ARRAY_BUFFER, sizeof(quadVertices), &quadVertices, GL_STATIC_DRAW);
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
+		}
+		glBindVertexArray(quadVAO);
+		glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+		glBindVertexArray(0);
 	}
 
 public:
@@ -139,30 +191,36 @@ private:
     VertexArray va;
     VertexBuffer* vb;
     IndexBuffer* ib;
-	ShadowBuffer* sb;
 
 	VertexArray vaPlane;
 	VertexBuffer* vbPlane;
 	IndexBuffer* ibPlane;
 
 	Shapes::Camera* camera;
-	Shapes::Cylinder cube;
 	Shapes::Cylinder cylender;
 	Shapes::Plane plane;
 	
-	Shader shaderBasic;
 	Shader shaderDepthBasic;
+	Shader shaderDepthDebug;
+	Shader shaderBasic;
 
 	glm::vec3 cameraPos = glm::vec3(3.0f, 3.0f, 3.0f);
 	glm::vec3 cameraCenter = glm::vec3(0.0f, 0.0f, 0.0f);
-	glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 	glm::vec3 cameraUp = glm::vec3(0.0f, 0.0f, 1.0f);
 	float deltaTime = 0.0f;
 
 	glm::vec2 lastMousePosRightClick = glm::vec2(0.0f, 0.0f);
 	glm::vec2 currentMousePosClick = glm::vec2(0.0f, 0.0f);;
 	bool firstMouseClick;
+
+	glm::vec3 lightPos = glm::vec3((10.0f, 10.0f, 10.0f));
 #pragma endregion
+
+	unsigned int depthMapFBO;
+	unsigned int depthMapTexture;
+
+	unsigned int quadVAO = 0;
+	unsigned int quadVBO;
 };
 
 int main()
