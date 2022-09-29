@@ -44,7 +44,6 @@ public:
 		modelPlatform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -0.3f));
 #pragma endregion
 
-		glGenFramebuffers(1, &depthMapFBO);
 		glGenTextures(1, &depthMapTexture);
 		glBindTexture(GL_TEXTURE_2D, depthMapTexture);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT,
@@ -54,7 +53,12 @@ public:
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
+		glGenFramebuffers(1, &depthMapFBO);
 		glBindFramebuffer(GL_FRAMEBUFFER, depthMapFBO);
+
+		glGenRenderbuffers(1, &renderbuffer);
+		glBindRenderbuffer(GL_RENDERBUFFER, renderbuffer);
+
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthMapTexture, 0);
 		glDrawBuffer(GL_NONE);
 		glReadBuffer(GL_NONE);
@@ -79,7 +83,7 @@ public:
 	{
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		float near_plane = 1.0f, far_plane = 18.0f;
+		float near_plane = 1.0f, far_plane = 20.0f;
 		glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, near_plane, far_plane);
 		glm::mat4 lightView = glm::lookAt(
 			lightPos,
@@ -108,7 +112,7 @@ public:
 		shaderBasic.SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
 		shaderBasic.SetUniformVec3f("camPos", camera->GetEye());
 		shaderBasic.SetUniformVec3f("lightPos", lightPos);
-		glActiveTexture(GL_TEXTURE0);
+		glActiveTexture(GL_TEXTURE0 + 1);
 		glBindTexture(GL_TEXTURE_2D, depthMapTexture);
 		RenderScene(shaderBasic);
 
@@ -213,11 +217,13 @@ private:
 	glm::vec2 currentMousePosClick = glm::vec2(0.0f, 0.0f);;
 	bool firstMouseClick;
 
-	glm::vec3 lightPos = glm::vec3((10.0f, 10.0f, 10.0f));
+	glm::vec3 lightPos = glm::vec3((3.0f, 3.0f, 3.0f));
 #pragma endregion
 
-	unsigned int depthMapFBO;
-	unsigned int depthMapTexture;
+	GLuint depthMapFBO;
+	GLuint depthMapTexture;
+	GLuint renderbuffer;
+
 
 	unsigned int quadVAO = 0;
 	unsigned int quadVBO;
