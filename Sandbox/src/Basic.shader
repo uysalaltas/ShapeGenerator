@@ -84,6 +84,7 @@ void main()
 	// calculate shadow
 	float shadow = ShadowCalculation(fs_in.CrntPosLightSpace, lightDir);
 	vec3 result = (ambient + (1.0 - shadow) * (diffuse + specular)) * fs_in.Color;
+	//vec3 result = (ambient + diffuse + specular) * fs_in.Color;
 
 	FragColor = vec4(result, 1.0);
 };

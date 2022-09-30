@@ -11,23 +11,24 @@ class Sandbox : public Teapot::Application
 {
 public:
 	Sandbox()
-		: cylender(0.30f, glm::vec3(1.0f, 1.0f, 1.0f))
+		: cylender(0.30f, glm::vec3(1.0f, 0.15f, 0.50f))
 		, plane(3.0f, glm::vec3(0.78f, 0.95f, 1.0f))
+		, cube(0.30f, glm::vec3(1.0f, 0.87f, 0.0f))
 		, shaderDepthBasic("src/BasicDepth.shader")
 		, shaderDepthDebug("src/BasicDepthDebug.shader")
 		, shaderBasic("src/Basic.shader")
 	{
 		camera = new Shapes::Camera(cameraPos, cameraCenter, cameraUp, (float)this->GetWindow().GetWidth(), (float)this->GetWindow().GetHeigth());
 
-		va.Bind();
-		vb = new VertexBuffer(cylender.ShapeVertices());
-		ib = new IndexBuffer(cylender.ShapeIndices());
-		va.AddBuffer(*vb, 0, 3, sizeof(Shapes::Vertex), (void*)0);
-		va.AddBuffer(*vb, 1, 3, sizeof(Shapes::Vertex), (void*)offsetof(Shapes::Vertex, Shapes::Vertex::color));
-		va.AddBuffer(*vb, 2, 3, sizeof(Shapes::Vertex), (void*)offsetof(Shapes::Vertex, Shapes::Vertex::normal));
-		va.Unbind();
-		vb->Unbind();
-		ib->Unbind();
+		vaCylendir.Bind();
+		vbCylendir = new VertexBuffer(cylender.ShapeVertices());
+		ibCylendir = new IndexBuffer(cylender.ShapeIndices());
+		vaCylendir.AddBuffer(*vbCylendir, 0, 3, sizeof(Shapes::Vertex), (void*)0);
+		vaCylendir.AddBuffer(*vbCylendir, 1, 3, sizeof(Shapes::Vertex), (void*)offsetof(Shapes::Vertex, Shapes::Vertex::color));
+		vaCylendir.AddBuffer(*vbCylendir, 2, 3, sizeof(Shapes::Vertex), (void*)offsetof(Shapes::Vertex, Shapes::Vertex::normal));
+		vaCylendir.Unbind();
+		vbCylendir->Unbind();
+		ibCylendir->Unbind();
 
 		vaPlane.Bind();
 		vbPlane = new VertexBuffer(plane.ShapeVertices());
@@ -39,9 +40,22 @@ public:
 		vbPlane->Unbind();
 		ibPlane->Unbind();
 
+		vaCube.Bind();
+		vbCube = new VertexBuffer(cube.ShapeVertices());
+		ibCube = new IndexBuffer(cube.ShapeIndices());
+		vaCube.AddBuffer(*vbCube, 0, 3, sizeof(Shapes::Vertex), (void*)0);
+		vaCube.AddBuffer(*vbCube, 1, 3, sizeof(Shapes::Vertex), (void*)offsetof(Shapes::Vertex, Shapes::Vertex::color));
+		vaCube.AddBuffer(*vbCube, 2, 3, sizeof(Shapes::Vertex), (void*)offsetof(Shapes::Vertex, Shapes::Vertex::normal));
+		vaCube.Unbind();
+		vbCube->Unbind();
+		ibCube->Unbind();
+
 		modelCylendir = glm::mat4(1.0f);
 		modelPlatform = glm::mat4(1.0f);
+		modelCube = glm::mat4(1.0f);
+
 		modelPlatform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -0.3f));
+		modelCube = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, -0.3f));
 
 		shadow = new ShadowMapping();
 		// shader configuration
@@ -54,8 +68,8 @@ public:
 
 	~Sandbox()
 	{
-		delete vb;
-		delete ib;
+		delete vbCylendir;
+		delete ibCylendir;
 		delete camera;
 		delete shadow;
 	}
@@ -86,7 +100,7 @@ public:
 		RenderScene(shaderBasic);
 
 		//Debug Shadow
-
+		//shadow->DebugShadow(shaderDepthDebug);
 	}
 
 	void ProcessInput()
@@ -116,35 +130,42 @@ public:
 	void RenderScene(Shader& shader)
 	{
 		shader.SetUniformMat4f("model", modelCylendir);
-		va.Bind();
+		vaCylendir.Bind();
 		glDrawElements(GL_TRIANGLES, cylender.ShapeIndices().size(), GL_UNSIGNED_INT, 0);
 
 		shader.SetUniformMat4f("model", modelPlatform);
 		vaPlane.Bind();
 		glDrawElements(GL_TRIANGLES, plane.ShapeIndices().size(), GL_UNSIGNED_INT, 0);
+
+		shader.SetUniformMat4f("model", modelCube);
+		vaCube.Bind();
+		glDrawElements(GL_TRIANGLES, cube.ShapeIndices().size(), GL_UNSIGNED_INT, 0);
 	}
-
-
 
 public:
 	glm::mat4 projection;
 	glm::mat4 view;
 	glm::mat4 modelCylendir;
 	glm::mat4 modelPlatform;
+	glm::mat4 modelCube;
 
 private:
-
-    VertexArray va;
-    VertexBuffer* vb;
-    IndexBuffer* ib;
+    VertexArray vaCylendir;
+    VertexBuffer* vbCylendir;
+    IndexBuffer* ibCylendir;
 
 	VertexArray vaPlane;
 	VertexBuffer* vbPlane;
 	IndexBuffer* ibPlane;
 
+	VertexArray vaCube;
+	VertexBuffer* vbCube;
+	IndexBuffer* ibCube;
+
 	Shapes::Camera* camera;
 	Shapes::Cylinder cylender;
 	Shapes::Plane plane;
+	Shapes::Cube cube;
 	
 	Shader shaderDepthBasic;
 	Shader shaderDepthDebug;

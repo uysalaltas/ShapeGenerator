@@ -1,4 +1,5 @@
 #include "ShadowMapping.h"
+#include <iostream>
 
 ShadowMapping::ShadowMapping()
 {
@@ -35,7 +36,7 @@ void ShadowMapping::RenderShadow(Shader& shader, glm::mat4& lightSpaceMatrix)
 
 void ShadowMapping::BindTexture() const
 {
-	glActiveTexture(GL_TEXTURE0 + 1);
+	glActiveTexture(GL_TEXTURE0 + depthMapTexture);
 	glBindTexture(GL_TEXTURE_2D, depthMapTexture);
 }
 
@@ -44,7 +45,7 @@ void ShadowMapping::UnbindFrameBuffer() const
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void ShadowMapping::DebugShadow(Shader shader)
+void ShadowMapping::DebugShadow(Shader& shader)
 {
 	shader.Bind();
 	glActiveTexture(GL_TEXTURE0);

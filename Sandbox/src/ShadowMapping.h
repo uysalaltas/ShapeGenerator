@@ -14,7 +14,7 @@ public:
 	void RenderShadow(Shader& shader, glm::mat4& lightSpaceMatrix);
 	void BindTexture() const;
 	void UnbindFrameBuffer() const;
-	void DebugShadow(Shader shader);
+	void DebugShadow(Shader& shader);
 
 private:
 	void RenderQuad();

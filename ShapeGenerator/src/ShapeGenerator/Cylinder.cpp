@@ -47,9 +47,7 @@ namespace Shapes
 				tmp.position.y = (uy * radius) * m_size;
 				tmp.position.z = (h) * m_size;
 
-				tmp.color.x = 1.0;
-				tmp.color.y = 1.0;
-				tmp.color.z = 1.0;
+				tmp.color = m_color;
 
 				//tmp.normal.x = ux;
 				//tmp.normal.y = uy;
@@ -131,9 +129,7 @@ namespace Shapes
 			centerVertex.position.y = 0.0f;
 			centerVertex.position.z = h * m_size;
 
-			centerVertex.color.x = 1.0;
-			centerVertex.color.y = 1.0;
-			centerVertex.color.z = 1.0;
+			centerVertex.color = m_color;
 
 			centerVertex.normal.x = 0;
 			centerVertex.normal.y = 0;
@@ -151,9 +147,7 @@ namespace Shapes
 				tmp.position.y = (uy * m_topRadius) * m_size;
 				tmp.position.z = (h) * m_size;
 
-				tmp.color.x = 1.0;
-				tmp.color.y = 1.0;
-				tmp.color.z = 1.0;
+				tmp.color = m_color;
 
 				tmp.normal.x = 0;
 				tmp.normal.y = 0;
