@@ -11,7 +11,7 @@ class Sandbox : public Teapot::Application
 {
 public:
 	Sandbox()
-		: cylender(0.30f, glm::vec3(1.0f, 0.15f, 0.50f))
+		: cylender(0.30f, glm::vec3(1.0f, 0.15f, 0.50f), 2.0f, 8)
 		, plane(3.0f, glm::vec3(0.78f, 0.95f, 1.0f))
 		, cube(0.30f, glm::vec3(1.0f, 0.87f, 0.0f))
 		, shaderDepthBasic("src/BasicDepth.shader")
@@ -55,7 +55,7 @@ public:
 		modelCube = glm::mat4(1.0f);
 
 		modelPlatform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -0.3f));
-		modelCube = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, -0.3f));
+		modelCube = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
 		shadow = new ShadowMapping();
 		// shader configuration
@@ -76,6 +76,8 @@ public:
 
 	void OnUpdate() override
 	{
+		glEnable(GL_DEPTH_TEST);
+
 		glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 20.0f);
 		glm::mat4 lightView = glm::lookAt(lightPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 		glm::mat4 lightSpaceMatrix = lightProjection * lightView;
@@ -129,6 +131,8 @@ public:
 
 	void RenderScene(Shader& shader)
 	{
+		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
 		shader.SetUniformMat4f("model", modelCylendir);
 		vaCylendir.Bind();
 		glDrawElements(GL_TRIANGLES, cylender.ShapeIndices().size(), GL_UNSIGNED_INT, 0);

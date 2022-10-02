@@ -3,13 +3,14 @@
 
 namespace Shapes
 {
-	Cylinder::Cylinder(const float size, const glm::vec3 color)
+	Cylinder::Cylinder(const float size, const glm::vec3 color, const float height, const int sectorCount)
 		: m_size(size)
 		, m_color(color)
+		, m_height(height)
+		, m_sectorCount(sectorCount)
 	{
 		BuildUnitCircleVertices();
-		BuildVertices();
-		BuildIndices();
+		BuildVertexData();
 	}
 	
 	std::vector<GLuint> Cylinder::ShapeIndices()
@@ -22,12 +23,11 @@ namespace Shapes
 		return m_vertices;
 	}
 
-	void Cylinder::BuildVertices()
+	void Cylinder::BuildVertexData()
 	{
 		// ------------------------
 		// SIDE
 		// ------------------------
-
 		std::vector<Vertex> tmp_vertices = {};
 
 		for (int i = 0; i <= m_stackCount; ++i)
@@ -68,8 +68,6 @@ namespace Shapes
 		// v2-v4 <== stack at i+1
 		// | \ |
 		// v1-v3 <== stack at i
-
-		std::cout << m_vertices.size() << std::endl;
 
 		for (i = 0; i < m_stackCount; ++i)
 		{
@@ -115,7 +113,6 @@ namespace Shapes
 		//------------------------
 		//BASE AND TOP
 		//------------------------
-
 		m_baseIndex = (int)m_vertices.size();
 		m_topIndex = m_baseIndex + m_sectorCount + 1;
 
@@ -156,10 +153,7 @@ namespace Shapes
 				m_vertices.push_back(tmp);
 			}
 		}
-	}
 
-	void Cylinder::BuildIndices()
-	{
 		// indices for the base surface
 		for (int i = 0, k = m_baseIndex + 1; i < m_sectorCount; ++i, ++k)
 		{
