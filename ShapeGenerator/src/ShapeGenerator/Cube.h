@@ -1,5 +1,4 @@
 #pragma once
-#include "ShapeGenerator/Utils.h"
 #include "Shapes.h"
 
 namespace Shapes

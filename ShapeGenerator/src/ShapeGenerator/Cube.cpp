@@ -1,4 +1,5 @@
 #include "Cube.h"
+#include "ShapeGenerator/Utils.h"
 
 namespace Shapes
 {
@@ -22,15 +23,11 @@ namespace Shapes
 
 	void Cube::BuildVertices()
 	{
-		const float PI = acos(-1);
-		float sectorStep = 2 * PI / 4;
-		float sectorAngle;  // radian
-
-		for (int i = 0; i <= 4; ++i)
-		{
-			sectorAngle = i * sectorStep;
-			m_unitVertices.push_back({cos(sectorAngle), sin(sectorAngle), 0.0f});
-		}
+		m_unitVertices.push_back({  0.5f,  0.5f, 0.0f });
+		m_unitVertices.push_back({ -0.5f,  0.5f, 0.0f });
+		m_unitVertices.push_back({ -0.5f, -0.5f, 0.0f });
+		m_unitVertices.push_back({  0.5f, -0.5f, 0.0f });
+		m_unitVertices.push_back({  0.5f,  0.5f, 0.0f });
 
 		// ------------------------
 		// SIDE
@@ -77,7 +74,7 @@ namespace Shapes
 				v3 = tmp_vertices[vi1 + 1];
 				v4 = tmp_vertices[vi2 + 1];
 
-				n = Utils::GetInstance()->ComputeFaceNormals(v1, v3, v2);
+				n = Utils::ComputeFaceNormals(v1, v3, v2);
 
 				v1.normal = n;
 				v2.normal = n;

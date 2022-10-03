@@ -14,8 +14,6 @@ namespace Shapes
 		void BuildVertexData();
 		void BuildUnitCircleVertices();
 
-		glm::vec3 ComputeFaceNormals(Vertex &v1, Vertex &v2, Vertex &v3);
-
 	private:
 		const float m_size;
 		const float m_height;

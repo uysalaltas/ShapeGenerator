@@ -1,5 +1,5 @@
 #include "Cylinder.h"
-#include <glm/gtx/string_cast.hpp>
+#include "ShapeGenerator/Utils.h"
 
 namespace Shapes
 {
@@ -84,7 +84,7 @@ namespace Shapes
 				v4 = tmp_vertices[vi2 + 1];
 
 				// compute a face normal of v1-v3-v2
-				n = ComputeFaceNormals(v1, v3, v2);
+				n = Utils::ComputeFaceNormals(v1, v3, v2);
 				//std::cout << glm::to_string(n) << std::endl;
 				v1.normal = n;
 				v2.normal = n;
@@ -202,39 +202,5 @@ namespace Shapes
 			m_unitCircleVertices.push_back(sin(sectorAngle)); // y
 			m_unitCircleVertices.push_back(0);                // z
 		}
-	}
-
-	glm::vec3 Cylinder::ComputeFaceNormals(Vertex& v1, Vertex& v2, Vertex& v3)
-	{
-		const float EPSILON = 0.000001f;
-
-		glm::vec3 normal = glm::vec3(0.0f, 0.0f, 0.0f);
-		float nx, ny, nz;
-
-		// find 2 edge vectors: v1-v2, v1-v3
-		float ex1 = v2.position.x - v1.position.x;
-		float ey1 = v2.position.y - v1.position.y;
-		float ez1 = v2.position.z - v1.position.z;
-		float ex2 = v3.position.x - v1.position.x;
-		float ey2 = v3.position.y - v1.position.y;
-		float ez2 = v3.position.z - v1.position.z;
-
-		// cross product: e1 x e2
-		nx = ey1 * ez2 - ez1 * ey2;
-		ny = ez1 * ex2 - ex1 * ez2;
-		nz = ex1 * ey2 - ey1 * ex2;
-
-		// normalize only if the length is > 0
-		float length = sqrtf(nx * nx + ny * ny + nz * nz);
-		if (length > EPSILON)
-		{
-			// normalize
-			float lengthInv = 1.0f / length;
-			normal.x = nx * lengthInv;
-			normal.y = ny * lengthInv;
-			normal.z = nz * lengthInv;
-		}
-
-		return normal;
 	}
 }
