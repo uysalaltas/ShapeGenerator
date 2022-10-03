@@ -12,7 +12,7 @@ class Sandbox : public Teapot::Application
 public:
 	Sandbox()
 		: cylender(0.30f, glm::vec3(1.0f, 0.15f, 0.50f), 2.0f, 8)
-		, plane(3.0f, glm::vec3(0.78f, 0.95f, 1.0f))
+		, plane(10, 10, 1.0f,glm::vec3(0.78f, 0.95f, 1.0f))
 		, cube(0.30f, glm::vec3(1.0f, 0.87f, 0.0f))
 		, shaderDepthBasic("src/BasicDepth.shader")
 		, shaderDepthDebug("src/BasicDepthDebug.shader")
@@ -54,7 +54,7 @@ public:
 		modelPlatform = glm::mat4(1.0f);
 		modelCube = glm::mat4(1.0f);
 
-		modelPlatform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, -0.3f));
+		modelPlatform = glm::translate(glm::mat4(1.0f), glm::vec3(-5.0f, -5.0f, -0.3f));
 		modelCube = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
 		shadow = new ShadowMapping();
@@ -78,6 +78,7 @@ public:
 	{
 		glEnable(GL_DEPTH_TEST);
 
+		std::cout << glm::to_string(lightPos) << std::endl;
 		glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 20.0f);
 		glm::mat4 lightView = glm::lookAt(lightPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 		glm::mat4 lightSpaceMatrix = lightProjection * lightView;
@@ -131,7 +132,7 @@ public:
 
 	void RenderScene(Shader& shader)
 	{
-		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 		shader.SetUniformMat4f("model", modelCylendir);
 		vaCylendir.Bind();
@@ -154,9 +155,9 @@ public:
 	glm::mat4 modelCube;
 
 private:
-    VertexArray vaCylendir;
-    VertexBuffer* vbCylendir;
-    IndexBuffer* ibCylendir;
+	VertexArray vaCylendir;
+	VertexBuffer* vbCylendir;
+	IndexBuffer* ibCylendir;
 
 	VertexArray vaPlane;
 	VertexBuffer* vbPlane;
@@ -184,7 +185,7 @@ private:
 	glm::vec2 currentMousePosClick = glm::vec2(0.0f, 0.0f);;
 	bool firstMouseClick;
 
-	glm::vec3 lightPos = glm::vec3((3.0f, 3.0f, 3.0f));
+	const glm::vec3 lightPos = glm::vec3(5.0f, 1.0f, 5.0f);
 
 	ShadowMapping* shadow;
 };

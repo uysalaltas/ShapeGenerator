@@ -7,8 +7,7 @@ namespace Shapes
 		: m_size(size)
 		, m_color(color)
 	{
-		BuildVertices();
-		BuildIndices();
+		BuildVertexData();
 	}
 
 	std::vector<GLuint> Cube::ShapeIndices()
@@ -21,7 +20,7 @@ namespace Shapes
 		return m_vertices;
 	}
 
-	void Cube::BuildVertices()
+	void Cube::BuildVertexData()
 	{
 		m_unitVertices.push_back({  0.5f,  0.5f, 0.0f });
 		m_unitVertices.push_back({ -0.5f,  0.5f, 0.0f });
@@ -32,7 +31,6 @@ namespace Shapes
 		// ------------------------
 		// SIDE
 		// ------------------------
-
 		std::vector<Vertex> tmp_vertices = {};
 
 		for (int i = 0; i <= 1; ++i)
@@ -100,64 +98,46 @@ namespace Shapes
 		//------------------------
 		//BASE AND TOP
 		//------------------------
-		//m_baseIndex = (int)m_vertices.size();
-		//m_topIndex = m_baseIndex + 4 + 1;
-		//for (int i = 0; i < 2; i++)
-		//{
-		//	float nz = -1 + i * 2;
-		//	for (int j = 0; j < 4; j++)
-		//	{
-		//		float ux = m_unitVertices[i].x;
-		//		float uy = m_unitVertices[i].y;
-		//		
-		//		Vertex tmp;
-		//		tmp.position.x = (ux) * m_size;
-		//		tmp.position.y = (uy) * m_size;
-		//		tmp.position.z = 1 * m_size;
-		//		tmp.color = m_color;
-		//		tmp.normal.x = 0;
-		//		tmp.normal.y = 0;
-		//		tmp.normal.z = nz;
-		//		m_vertices.push_back(tmp);
-		//	}
-		//}
-	}
+		unsigned int m_baseIndex = (int)m_vertices.size();
+		unsigned int m_topIndex = m_baseIndex + 4;
 
-	void Cube::BuildIndices()
-	{
-		//// indices for the base surface
-		//for (int i = 0, k = m_baseIndex + 1; i < 4; ++i, ++k)
-		//{
-		//	if (i < 4 - 1)
-		//	{
-		//		m_indices.push_back(m_baseIndex);
-		//		m_indices.push_back(k + 1);
-		//		m_indices.push_back(k);
-		//	}
-		//	else // last triangle
-		//	{
-		//		m_indices.push_back(m_baseIndex);
-		//		m_indices.push_back(m_baseIndex + 1);
-		//		m_indices.push_back(k);
-		//	}
-		//}
+		for (int i = 0; i < 2; i++)
+		{
+			float h = -1 + (float)i;
+			float nz = -1 + i * 2;
 
-		//// indices for the top surface
-		//for (int i = 0, k = m_topIndex + 1; i < 4; ++i, ++k)
-		//{
-		//	if (i < 4 - 1)
-		//	{
-		//		m_indices.push_back(m_topIndex);
-		//		m_indices.push_back(k);
-		//		m_indices.push_back(k + 1);
-		//	}
-		//	else // last triangle
-		//	{
-		//		m_indices.push_back(m_topIndex);
-		//		m_indices.push_back(k);
-		//		m_indices.push_back(m_topIndex + 1);
-		//	}
-		//}
+			for (int j = 0; j < 4; j++)
+			{
+				float ux = m_unitVertices[j].x;
+				float uy = m_unitVertices[j].y;
+				
+				Vertex tmp;
+				tmp.position.x = (ux) * m_size;
+				tmp.position.y = (uy) * m_size;
+				tmp.position.z = h * m_size;
+				tmp.color = m_color;
+				tmp.normal.x = 0;
+				tmp.normal.y = 0;
+				tmp.normal.z = nz;
+				m_vertices.push_back(tmp);
+			}
+		}
+
+		// indices for the base surface
+		for (int i = 0, k = m_baseIndex; i < 2; ++i, ++k)
+		{
+			m_indices.push_back(m_baseIndex);
+			m_indices.push_back(k + 2);
+			m_indices.push_back(k + 1);
+		}
+
+		// indices for the top surface
+		for (int i = 0, k = m_topIndex; i < 2; ++i, ++k)
+		{
+			m_indices.push_back(m_topIndex);
+			m_indices.push_back(k + 2);
+			m_indices.push_back(k + 1);
+		}
 	}
 
 	glm::vec3 Cube::ComputeFaceNormals(Vertex& v1, Vertex& v2, Vertex& v3)

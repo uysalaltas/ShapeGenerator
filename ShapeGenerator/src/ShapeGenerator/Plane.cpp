@@ -3,8 +3,10 @@
 
 namespace Shapes
 {
-	Plane::Plane(const float slice, const glm::vec3 color)
-		: m_slice(slice)
+	Plane::Plane(const int height, const int width, const float sliceSize, const glm::vec3 color)
+		: m_height(height)
+		, m_width(width)
+		, m_sliceSize(sliceSize)
 		, m_color(color)
 	{
 		BuildVertices();
@@ -23,22 +25,31 @@ namespace Shapes
 
 	void Plane::BuildVertices()
 	{
-		float offset = (m_slice - 1) / 2;
+		m_unitVertices.push_back({ m_sliceSize,		m_sliceSize,	0.0f });
+		m_unitVertices.push_back({ 0.0f,			m_sliceSize,	0.0f });
+		m_unitVertices.push_back({ 0.0f,			0.0f,			0.0f });
+		m_unitVertices.push_back({ m_sliceSize,		0.0f,			0.0f });
 
-		for (int row = 0; row < m_slice; row++)
+		int rowK = 0;
+		int colK = 0;
+
+		for (int row = 0; row < m_width; row++)
 		{
-			for (int col = 0; col < m_slice; col++)
+			rowK = row * m_sliceSize;
+			for (int col = 0; col < m_height; col++)
 			{
-				m_vertices.push_back(
-					Vertex
-					{
-						glm::vec3((float)col - offset, (float)row - offset, 0.0f),
-						m_color,
-						glm::vec3(0, 0, 1)
-					}
-				);
-
-				//std::cout << glm::to_string(glm::vec3((float)col, (float)row, 0.0f)) << std::endl;
+				colK = col * m_sliceSize;
+				for (int i = 0; i < 4; i++)
+				{
+					m_vertices.push_back(
+						Vertex
+						{
+							glm::vec3{(m_unitVertices[i].x + colK), (m_unitVertices[i].y + rowK), m_unitVertices[i].z},
+							m_color,
+							glm::vec3(0, 0, 1)
+						}
+					);
+				}
 			}
 		}
 	}
@@ -46,30 +57,26 @@ namespace Shapes
 	void Plane::BuildIndices()
 	{
 		int ind1 = 0;
-		int ind2 = 3;
-		int ind3 = 1;
+		int ind2 = 1;
+		int ind3 = 2;
+		int ind4 = 3;
 
-		for (int row = 0; row < m_slice - 1; row++) 
+		int k = 0;
+
+		for (int row = 0; row < m_width; row++)
 		{
-			ind1 = 3 * row;
-
-			std::cout << ind1 << std::endl;
-
-			for (int col = 0; col < m_slice - 1; col++)
+			for (int col = 0; col < m_height; col++)
 			{
-				m_indices.push_back(col + ind1);
-				m_indices.push_back(col + ind1 + ind2);
-				m_indices.push_back(col + ind1 + ind3);
+				m_indices.push_back(ind1 + k);
+				m_indices.push_back(ind3 + k);
+				m_indices.push_back(ind2 + k);
 
-				m_indices.push_back(col + ind1 + ind2);
-				m_indices.push_back(col + ind1 + ind3);
-				m_indices.push_back(col + ind1 + ind2 + ind3);
+				m_indices.push_back(ind1 + k);
+				m_indices.push_back(ind4 + k);
+				m_indices.push_back(ind3 + k);
+
+				k += 4;
 			}
 		}
-
-		//for (int i = 0; i < m_indices.size(); i++)
-		//{
-		//	std::cout << m_indices[i] << std::endl;
-		//}
 	}
 }

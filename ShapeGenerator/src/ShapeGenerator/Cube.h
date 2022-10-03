@@ -11,17 +11,12 @@ namespace Shapes
 		std::vector<Vertex> ShapeVertices() override;
 
 	private:
-		void BuildVertices();
-		void BuildIndices();
-
+		void BuildVertexData();
 		glm::vec3 ComputeFaceNormals(Vertex& v1, Vertex& v2, Vertex& v3);
 
 	private:
 		const float m_size;
 		const glm::vec3 m_color;
-
-		unsigned int m_baseIndex;
-		unsigned int m_topIndex;
 
 		std::vector<glm::vec3> m_unitVertices;
 		std::vector<Vertex> m_vertices = {};
