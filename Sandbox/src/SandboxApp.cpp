@@ -11,9 +11,10 @@ class Sandbox : public Teapot::Application
 {
 public:
 	Sandbox()
-		: cylender(0.30f, glm::vec3(1.0f, 0.15f, 0.50f), 2.0f, 8)
+		: cylender(0.30f, glm::vec3(1.0f, 0.15f, 0.50f))
 		, plane(10, 10, 1.0f,glm::vec3(0.78f, 0.95f, 1.0f))
 		, cube(0.30f, glm::vec3(1.0f, 0.87f, 0.0f))
+		, pyramid(0.30f, glm::vec3(0.20f, 0.71f, 0.29f), 2.0f, 4, 1.0f, 0.0f)
 		, shaderDepthBasic("src/BasicDepth.shader")
 		, shaderDepthDebug("src/BasicDepthDebug.shader")
 		, shaderBasic("src/Basic.shader")
@@ -50,12 +51,24 @@ public:
 		vbCube->Unbind();
 		ibCube->Unbind();
 
+		vaPyramid.Bind();
+		vbPyramid = new VertexBuffer(pyramid.ShapeVertices());
+		ibPyramid = new IndexBuffer(pyramid.ShapeIndices());
+		vaPyramid.AddBuffer(*vbPyramid, 0, 3, sizeof(Shapes::Vertex), (void*)0);
+		vaPyramid.AddBuffer(*vbPyramid, 1, 3, sizeof(Shapes::Vertex), (void*)offsetof(Shapes::Vertex, Shapes::Vertex::color));
+		vaPyramid.AddBuffer(*vbPyramid, 2, 3, sizeof(Shapes::Vertex), (void*)offsetof(Shapes::Vertex, Shapes::Vertex::normal));
+		vaPyramid.Unbind();
+		vbPyramid->Unbind();
+		ibPyramid->Unbind();
+
 		modelCylendir = glm::mat4(1.0f);
 		modelPlatform = glm::mat4(1.0f);
 		modelCube = glm::mat4(1.0f);
+		modelPyramid = glm::mat4(1.0f);
 
 		modelPlatform = glm::translate(glm::mat4(1.0f), glm::vec3(-5.0f, -5.0f, -0.3f));
 		modelCube = glm::translate(glm::mat4(1.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+		modelPyramid = glm::translate(glm::mat4(1.0f), glm::vec3(2.0f, 0.0f, 0.0f));
 
 		shadow = new ShadowMapping();
 		// shader configuration
@@ -70,6 +83,16 @@ public:
 	{
 		delete vbCylendir;
 		delete ibCylendir;
+
+		delete vbPlane;
+		delete ibPlane;
+
+		delete vbCube;
+		delete ibCube;
+
+		delete vbPyramid;
+		delete ibPyramid;
+
 		delete camera;
 		delete shadow;
 	}
@@ -78,7 +101,6 @@ public:
 	{
 		glEnable(GL_DEPTH_TEST);
 
-		std::cout << glm::to_string(lightPos) << std::endl;
 		glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 20.0f);
 		glm::mat4 lightView = glm::lookAt(lightPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 		glm::mat4 lightSpaceMatrix = lightProjection * lightView;
@@ -145,6 +167,10 @@ public:
 		shader.SetUniformMat4f("model", modelCube);
 		vaCube.Bind();
 		glDrawElements(GL_TRIANGLES, cube.ShapeIndices().size(), GL_UNSIGNED_INT, 0);
+
+		shader.SetUniformMat4f("model", modelPyramid);
+		vaPyramid.Bind();
+		glDrawElements(GL_TRIANGLES, cylender.ShapeIndices().size(), GL_UNSIGNED_INT, 0);
 	}
 
 public:
@@ -153,6 +179,7 @@ public:
 	glm::mat4 modelCylendir;
 	glm::mat4 modelPlatform;
 	glm::mat4 modelCube;
+	glm::mat4 modelPyramid;
 
 private:
 	VertexArray vaCylendir;
@@ -167,10 +194,15 @@ private:
 	VertexBuffer* vbCube;
 	IndexBuffer* ibCube;
 
+	VertexArray vaPyramid;
+	VertexBuffer* vbPyramid;
+	IndexBuffer* ibPyramid;
+
 	Shapes::Camera* camera;
 	Shapes::Cylinder cylender;
 	Shapes::Plane plane;
 	Shapes::Cube cube;
+	Shapes::Cylinder pyramid;
 	
 	Shader shaderDepthBasic;
 	Shader shaderDepthDebug;

@@ -1,5 +1,4 @@
 #include "Plane.h"
-#include <ShapeGenerator.h>
 
 namespace Shapes
 {

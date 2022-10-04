@@ -3,11 +3,20 @@
 
 namespace Shapes
 {
-	Cylinder::Cylinder(const float size, const glm::vec3 color, const float height, const int sectorCount)
+	Cylinder::Cylinder(
+		const float size, 
+		const glm::vec3 color, 
+		const float height, 
+		const int sectorCount, 
+		const float baseRadius, 
+		const float topRadius
+	)
 		: m_size(size)
 		, m_color(color)
 		, m_height(height)
 		, m_sectorCount(sectorCount)
+		, m_baseRadius(baseRadius)
+		, m_topRadius(topRadius)
 	{
 		BuildUnitCircleVertices();
 		BuildVertexData();
