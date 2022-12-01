@@ -10,16 +10,6 @@ namespace Shapes
 		BuildVertexData();
 	}
 
-	std::vector<GLuint> Cube::ShapeIndices()
-	{
-		return m_indices;
-	}
-
-	std::vector<Vertex> Cube::ShapeVertices()
-	{
-		return m_vertices;
-	}
-
 	void Cube::BuildVertexData()
 	{
 		m_unitVertices.push_back({  0.5f,  0.5f, 0.0f });
@@ -47,7 +37,6 @@ namespace Shapes
 				tmp.position.z = (h) * m_size;
 
 				tmp.color = m_color;
-
 				tmp_vertices.push_back(tmp);
 			}
 		}
@@ -84,6 +73,21 @@ namespace Shapes
 				m_vertices.push_back(v3);
 				m_vertices.push_back(v4);
 
+				m_positions.push_back(v1.position);
+				m_positions.push_back(v2.position);
+				m_positions.push_back(v3.position);
+				m_positions.push_back(v4.position);
+
+				m_colors.push_back(v1.color);
+				m_colors.push_back(v2.color);
+				m_colors.push_back(v3.color);
+				m_colors.push_back(v4.color);
+
+				m_normals.push_back(v1.normal);
+				m_normals.push_back(v2.normal);
+				m_normals.push_back(v3.normal);
+				m_normals.push_back(v4.normal);
+
 				m_indices.push_back(index);
 				m_indices.push_back(index + 2);
 				m_indices.push_back(index + 1);
@@ -119,7 +123,11 @@ namespace Shapes
 				tmp.normal.x = 0;
 				tmp.normal.y = 0;
 				tmp.normal.z = nz;
+
 				m_vertices.push_back(tmp);
+				m_positions.push_back(tmp.position);
+				m_colors.push_back(tmp.color);
+				m_normals.push_back(tmp.normal);
 			}
 		}
 

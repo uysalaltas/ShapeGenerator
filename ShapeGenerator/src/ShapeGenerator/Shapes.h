@@ -20,8 +20,17 @@ namespace Shapes
 		virtual ~Shapes() {};
 		virtual std::vector<GLuint> ShapeIndices() = 0;
 		virtual std::vector<Vertex> ShapeVertices() = 0;
-	private:
 
+		virtual std::vector<glm::vec3> ShapePositions() = 0;
+		virtual std::vector<glm::vec3> ShapeColors() = 0;
+		virtual std::vector<glm::vec3> ShapeNormals() = 0;
+
+	protected:
+		std::vector<Vertex> m_vertices = {};
+		std::vector<GLuint> m_indices = {};
+		std::vector<glm::vec3> m_positions = {};
+		std::vector<glm::vec3> m_colors = {};
+		std::vector<glm::vec3> m_normals = {};
 	};
 }
 

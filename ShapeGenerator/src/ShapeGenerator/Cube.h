@@ -7,8 +7,11 @@ namespace Shapes
 	{
 	public:
 		Cube(const float size, const glm::vec3 color);
-		std::vector<GLuint> ShapeIndices() override;
-		std::vector<Vertex> ShapeVertices() override;
+		inline std::vector<GLuint> ShapeIndices() override { return m_indices; }
+		inline std::vector<Vertex> ShapeVertices() override { return m_vertices; }
+		inline std::vector<glm::vec3> ShapePositions() override { return m_positions; }
+		inline std::vector<glm::vec3> ShapeColors() override { return m_colors; }
+		inline std::vector<glm::vec3> ShapeNormals() override { return m_normals; }
 
 	private:
 		void BuildVertexData();
@@ -19,8 +22,5 @@ namespace Shapes
 		const glm::vec3 m_color;
 
 		std::vector<glm::vec3> m_unitVertices;
-		std::vector<Vertex> m_vertices = {};
-		std::vector<GLuint> m_indices = {};
-
 	};
 }

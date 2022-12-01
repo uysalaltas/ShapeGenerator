@@ -12,16 +12,6 @@ namespace Shapes
 		BuildIndices();
 	}
 
-	std::vector<GLuint> Plane::ShapeIndices()
-	{
-		return m_indices;
-	}
-
-	std::vector<Vertex> Plane::ShapeVertices()
-	{
-		return m_vertices;
-	}
-
 	void Plane::BuildVertices()
 	{
 		m_unitVertices.push_back({ m_sliceSize,		m_sliceSize,	0.0f });
@@ -48,6 +38,10 @@ namespace Shapes
 							glm::vec3(0, 0, 1)
 						}
 					);
+
+					m_positions.push_back(glm::vec3{ (m_unitVertices[i].x + colK), (m_unitVertices[i].y + rowK), m_unitVertices[i].z });
+					m_colors.push_back(m_color);
+					m_normals.push_back(glm::vec3(0, 0, 1));
 				}
 			}
 		}

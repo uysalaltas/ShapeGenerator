@@ -21,16 +21,6 @@ namespace Shapes
 		BuildUnitCircleVertices();
 		BuildVertexData();
 	}
-	
-	std::vector<GLuint> Cylinder::ShapeIndices()
-	{
-		return m_indices;
-	}
-
-	std::vector<Vertex> Cylinder::ShapeVertices()
-	{
-		return m_vertices;
-	}
 
 	void Cylinder::BuildVertexData()
 	{
@@ -105,6 +95,21 @@ namespace Shapes
 				m_vertices.push_back(v3);
 				m_vertices.push_back(v4);
 
+				m_positions.push_back(v1.position);
+				m_positions.push_back(v2.position);
+				m_positions.push_back(v3.position);
+				m_positions.push_back(v4.position);
+
+				m_colors.push_back(v1.color);
+				m_colors.push_back(v2.color);
+				m_colors.push_back(v3.color);
+				m_colors.push_back(v4.color);
+
+				m_normals.push_back(v1.normal);
+				m_normals.push_back(v2.normal);
+				m_normals.push_back(v3.normal);
+				m_normals.push_back(v4.normal);
+
 				// k1 => k1+1 => k2
 				m_indices.push_back(index);
 				m_indices.push_back(index + 2);
@@ -142,6 +147,9 @@ namespace Shapes
 			centerVertex.normal.z = nz;
 			
 			m_vertices.push_back(centerVertex);
+			m_positions.push_back(centerVertex.position);
+			m_colors.push_back(centerVertex.color);
+			m_normals.push_back(centerVertex.normal);
 
 			for (int j = 0, k = 0; j < m_sectorCount; ++j, k += 3)
 			{
@@ -160,6 +168,9 @@ namespace Shapes
 				tmp.normal.z = nz;
 
 				m_vertices.push_back(tmp);
+				m_positions.push_back(tmp.position);
+				m_colors.push_back(tmp.color);
+				m_normals.push_back(tmp.normal);
 			}
 		}
 
