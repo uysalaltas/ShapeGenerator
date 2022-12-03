@@ -1,6 +1,7 @@
+#include <imgui.h>
+
 #include "ShapeGenerator.h"
 #include "Teapot.h"
-#include <Renderer/FrameBuffer.h>
 
 class Sandbox : public Teapot::Application
 {
@@ -47,6 +48,9 @@ public:
 	void OnUpdate() override
 	{
 		glEnable(GL_DEPTH_TEST);
+
+		ImGui::Begin("Transform", NULL, 0);
+		ImGui::End();
 
 		glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 20.0f);
 		glm::mat4 lightView = glm::lookAt(lightPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));

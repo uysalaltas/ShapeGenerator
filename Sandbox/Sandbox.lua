@@ -18,6 +18,7 @@ project "Sandbox"
 		"%{wks.location}/vendor/Teapot/Teapot/src",
 		"%{wks.location}/vendor/Teapot/Teapot/vendor/GLFW/include",
 		"%{wks.location}/vendor/Teapot/Teapot/vendor/GLAD/include",
+		"%{wks.location}/vendor/Teapot/Teapot/vendor/ImGui",
 		"%{wks.location}/vendor/Teapot/Teapot/vendor/stb_image",
 		"%{wks.location}/vendor/Teapot/Teapot/vendor/assimp/include"
 	}
