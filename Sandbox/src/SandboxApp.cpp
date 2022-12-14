@@ -11,6 +11,7 @@ public:
 		, plane(10, 10, 1.0f, glm::vec3(0.78f, 0.95f, 1.0f))
 		, cube(0.30f, glm::vec3(1.0f, 0.87f, 0.0f))
 		, pyramid(0.30f, glm::vec3(0.20f, 0.71f, 0.29f), 2.0f, 4, 1.0f, 0.0f)
+		, sphere(0.30f, glm::vec3(0.20f, 0.25f, 1.0f), 30.0f, 30.0f)
 		, shaderDepthBasic("src/BasicDepth.shader")
 		, shaderDepthDebug("src/BasicDepthDebug.shader")
 		, shaderBasic("src/Basic.shader")
@@ -21,10 +22,12 @@ public:
 		planeModel = new Teapot::Model(plane.ShapePositions(), plane.ShapeColors(), plane.ShapeNormals(), plane.ShapeIndices(), "Plane");
 		pyramidModel = new Teapot::Model(pyramid.ShapePositions(), pyramid.ShapeColors(), pyramid.ShapeNormals(), pyramid.ShapeIndices(), "Pyramid");
 		cylinderModel = new Teapot::Model(cylender.ShapePositions(), cylender.ShapeColors(), cylender.ShapeNormals(), cylender.ShapeIndices(), "Cylender");
+		sphereModel = new Teapot::Model(sphere.ShapePositions(), sphere.ShapeColors(), sphere.ShapeNormals(), sphere.ShapeIndices(), "Sphere");
 
 		planeModel->Translate(glm::vec3(-5.0f, -5.0f, -0.3f));
 		cubeModel->Translate(glm::vec3(1.0f, 0.0f, 0.0f));
 		pyramidModel->Translate(glm::vec3(2.0f, 0.0f, 0.0f));
+		sphereModel->Translate(glm::vec3(-1.0f, 0.0f, 0.0f));
 
 		shadow = new Teapot::ShadowMapping();
 		// shader configuration
@@ -43,6 +46,7 @@ public:
 		delete planeModel;
 		delete cylinderModel;
 		delete pyramidModel;
+		delete sphereModel;
 	}
 
 	void OnUpdate() override
@@ -88,6 +92,7 @@ public:
 		planeModel->Draw(shader);
 		pyramidModel->Draw(shader);
 		cylinderModel->Draw(shader);
+		sphereModel->Draw(shader);
 	}
 
 public:
@@ -99,6 +104,7 @@ private:
 	Shapes::Plane plane;
 	Shapes::Cube cube;
 	Shapes::Cylinder pyramid;
+	Shapes::Sphere sphere;
 	
 	Teapot::Camera* camera;
 
@@ -106,6 +112,7 @@ private:
 	Teapot::Model* planeModel;
 	Teapot::Model* cylinderModel;
 	Teapot::Model* pyramidModel;
+	Teapot::Model* sphereModel;
 
 	Teapot::Shader shaderDepthBasic;
 	Teapot::Shader shaderDepthDebug;

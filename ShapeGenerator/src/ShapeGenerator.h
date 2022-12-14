@@ -6,4 +6,4 @@
 #include "ShapeGenerator/Cube.h"
 #include "ShapeGenerator/Cylinder.h"
 #include "ShapeGenerator/Plane.h"
-
+#include "ShapeGenerator/Sphere.h"
