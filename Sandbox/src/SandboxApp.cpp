@@ -30,6 +30,7 @@ public:
 		sphereModel->Translate(glm::vec3(-1.0f, 0.0f, 0.0f));
 
 		shadow = new Teapot::ShadowMapping();
+
 		// shader configuration
 		// --------------------
 		shaderBasic.Bind();	
@@ -59,10 +60,12 @@ public:
 		glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 20.0f);
 		glm::mat4 lightView = glm::lookAt(lightPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 		glm::mat4 lightSpaceMatrix = lightProjection * lightView;
+		
 		shadow->RenderShadow(shaderDepthBasic, lightSpaceMatrix);
 		RenderScene(shaderDepthBasic);
 		shadow->UnbindFrameBuffer();
 
+		Teapot::Application::GetWindow().BindFrameBuffer();
 		glViewport(0, 0, 1280, 720);
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -78,8 +81,10 @@ public:
 		shaderBasic.SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
 		shaderBasic.SetUniformVec3f("camPos", camera->GetEye());
 		shaderBasic.SetUniformVec3f("lightPos", lightPos);
+		
 		shadow->BindTexture();
 		RenderScene(shaderBasic);
+		Teapot::Application::GetWindow().UnbindFrameBuffer();
 
 		//Debug Shadow
 		//shadow->DebugShadow(shaderDepthDebug);

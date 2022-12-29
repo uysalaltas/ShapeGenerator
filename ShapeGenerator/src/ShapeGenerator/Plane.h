@@ -3,7 +3,7 @@
 
 namespace Shapes
 {
-	class Plane : Shapes
+	class Plane : public Shapes
 	{
 	public:
 		Plane(const int height, const int width, const float sliceSize, const glm::vec3 color);

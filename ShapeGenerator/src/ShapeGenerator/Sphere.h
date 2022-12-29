@@ -15,7 +15,6 @@ namespace Shapes
 
 	private:
 		void BuildVertexData();
-		glm::vec3 ComputeFaceNormals(Vertex& v1, Vertex& v2, Vertex& v3);
 
 	private:
 		const float m_radius;

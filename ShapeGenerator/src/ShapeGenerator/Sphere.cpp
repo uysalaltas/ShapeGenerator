@@ -8,7 +8,12 @@ namespace Shapes
 		, m_sectorCount(sectorCount)
         , m_stackCount(stackCount)
 	{
-        float x, y, z, xy;                              // vertex position
+        BuildVertexData();
+	}
+
+    void Sphere::BuildVertexData()
+    {
+        float x, y, z, xy;                                // vertex position
         float nx, ny, nz, lengthInv = 1.0f / m_radius;    // vertex normal
 
         const float PI = acos(-1);
@@ -19,7 +24,7 @@ namespace Shapes
 
         for (int i = 0; i <= m_stackCount; ++i)
         {
-            stackAngle = PI / 2 - i * stackStep;        // starting from pi/2 to -pi/2
+            stackAngle = PI / 2 - i * stackStep;          // starting from pi/2 to -pi/2
             xy = m_radius * cosf(stackAngle);             // r * cos(u)
             z = m_radius * sinf(stackAngle);              // r * sin(u)
 
@@ -33,7 +38,7 @@ namespace Shapes
                 // vertex position (x, y, z)
                 x = xy * cosf(sectorAngle);             // r * cos(u) * cos(v)
                 y = xy * sinf(sectorAngle);             // r * cos(u) * sin(v)
-                
+
                 // normalized vertex normal (nx, ny, nz)
                 nx = x * lengthInv;
                 ny = y * lengthInv;
@@ -77,7 +82,7 @@ namespace Shapes
                 }
 
                 // k1+1 => k2 => k2+1
-                if (i != (stackCount - 1))
+                if (i != (m_stackCount - 1))
                 {
                     m_indices.push_back(k1 + 1);
                     m_indices.push_back(k2);
@@ -88,6 +93,5 @@ namespace Shapes
 
         std::cout << "V: " << m_vertices.size() << std::endl;
         std::cout << "I: " << m_indices.size() << std::endl;
-
-	}
+    }
 }

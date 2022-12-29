@@ -3,7 +3,7 @@
 
 namespace Shapes
 {
-	class Cylinder : Shapes
+	class Cylinder : public Shapes
 	{
 	public:
 		Cylinder(
