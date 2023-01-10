@@ -27,7 +27,7 @@ public:
 		planeModel->Translate(glm::vec3(-5.0f, -5.0f, -0.3f));
 		cubeModel->Translate(glm::vec3(1.0f, 0.0f, 0.0f));
 		pyramidModel->Translate(glm::vec3(2.0f, 0.0f, 0.0f));
-		sphereModel->Translate(glm::vec3(-1.0f, 0.0f, 0.0f));
+		cylinderModel->Translate(glm::vec3(-1.0f, 0.0f, 0.0f));
 
 		shadow = new Teapot::ShadowMapping();
 
@@ -55,6 +55,7 @@ public:
 		glEnable(GL_DEPTH_TEST);
 
 		ImGui::Begin("Transform", NULL, 0);
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		ImGui::End();
 
 		glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 20.0f);
