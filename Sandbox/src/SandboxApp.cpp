@@ -6,15 +6,14 @@
 class Sandbox : public Teapot::Application
 {
 public:
-	Sandbox()
-		: cylender(0.30f, glm::vec3(1.0f, 0.15f, 0.50f))
-		, plane(10, 10, 1.0f, glm::vec3(0.78f, 0.95f, 1.0f))
-		, cube(0.30f, glm::vec3(1.0f, 0.87f, 0.0f))
-		, pyramid(0.30f, glm::vec3(0.20f, 0.71f, 0.29f), 2.0f, 4, 1.0f, 0.0f)
-		, sphere(0.30f, glm::vec3(0.20f, 0.25f, 1.0f), 30.0f, 30.0f)
-		, shaderDepthBasic("src/BasicDepth.shader")
-		, shaderDepthDebug("src/BasicDepthDebug.shader")
-		, shaderBasic("src/Basic.shader")
+	Sandbox(const Teapot::WindowProps& props = Teapot::WindowProps::WindowProps())
+		: cylender		(0.30f, glm::vec3(1.0f, 0.15f, 0.50f))
+		, plane			(10, 10, 1.0f, glm::vec3(0.78f, 0.95f, 1.0f))
+		, cube			(0.30f, glm::vec3(1.0f, 0.87f, 0.0f))
+		, pyramid		(0.30f, glm::vec3(0.20f, 0.71f, 0.29f), 2.0f, 4, 1.0f, 0.0f)
+		, sphere		(0.30f, glm::vec3(0.20f, 0.25f, 1.0f), 30.0f, 30.0f)
+		, shaderDepthBasic	("src/BasicDepth.shader")
+		, shaderBasic		("src/Basic.shader")
 	{
 		camera = new Teapot::Camera(cameraPos, cameraCenter, cameraUp, (int*)this->GetWindow().GetWidthRef(), (int*)this->GetWindow().GetHeigthRef());
 
@@ -24,19 +23,18 @@ public:
 		cylinderModel = new Teapot::Model(cylender.ShapePositions(), cylender.ShapeColors(), cylender.ShapeNormals(), cylender.ShapeIndices(), "Cylender");
 		sphereModel = new Teapot::Model(sphere.ShapePositions(), sphere.ShapeColors(), sphere.ShapeNormals(), sphere.ShapeIndices(), "Sphere");
 
-		planeModel->Translate(glm::vec3(-5.0f, -5.0f, -0.3f));
 		cubeModel->Translate(glm::vec3(1.0f, 0.0f, 0.0f));
+		planeModel->Translate(glm::vec3(-5.0f, -5.0f, -0.3f));
 		pyramidModel->Translate(glm::vec3(2.0f, 0.0f, 0.0f));
 		cylinderModel->Translate(glm::vec3(-1.0f, 0.0f, 0.0f));
 
-		shadow = new Teapot::ShadowMapping();
+		models.push_back(cubeModel);
+		models.push_back(planeModel);
+		models.push_back(pyramidModel);
+		models.push_back(cylinderModel);
+		models.push_back(sphereModel);
 
-		// shader configuration
-		// --------------------
-		shaderBasic.Bind();	
-		shaderBasic.SetUniform1i("shadowMap", 1);
-		shaderDepthDebug.Bind();
-		shaderDepthDebug.SetUniform1i("depthMap", 0);
+		shadow = new Teapot::Shadow(shaderBasic, shaderDepthBasic);
 	}
 
 	~Sandbox()
@@ -50,27 +48,13 @@ public:
 		delete sphereModel;
 	}
 
+	void OnUpdateAwake() override
+	{
+		shadow->RenderShadow(lightPos, models);
+	}
+
 	void OnUpdate() override
 	{
-		glEnable(GL_DEPTH_TEST);
-
-		ImGui::Begin("Transform", NULL, 0);
-		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-		ImGui::End();
-
-		glm::mat4 lightProjection = glm::ortho(-10.0f, 10.0f, -10.0f, 10.0f, 1.0f, 20.0f);
-		glm::mat4 lightView = glm::lookAt(lightPos, glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-		glm::mat4 lightSpaceMatrix = lightProjection * lightView;
-		
-		shadow->RenderShadow(shaderDepthBasic, lightSpaceMatrix);
-		RenderScene(shaderDepthBasic);
-		shadow->UnbindFrameBuffer();
-
-		Teapot::Application::GetWindow().BindFrameBuffer();
-		glViewport(0, 0, 1280, 720);
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
 		camera->UpdateProjMatrix();
 		view = camera->GetViewMatrix();
 		projection = camera->GetProjMatrix();
@@ -79,16 +63,17 @@ public:
 		shaderBasic.Bind();
 		shaderBasic.SetUniformMat4f("view", view);
 		shaderBasic.SetUniformMat4f("projection", projection);
-		shaderBasic.SetUniformMat4f("lightSpaceMatrix", lightSpaceMatrix);
+		shaderBasic.SetUniformMat4f("lightSpaceMatrix", shadow->GetLightSpaceMatrix());
 		shaderBasic.SetUniformVec3f("camPos", camera->GetEye());
 		shaderBasic.SetUniformVec3f("lightPos", lightPos);
 		
-		shadow->BindTexture();
+		shadow->BindShadow();
 		RenderScene(shaderBasic);
-		Teapot::Application::GetWindow().UnbindFrameBuffer();
 
-		//Debug Shadow
-		//shadow->DebugShadow(shaderDepthDebug);
+		// Ui Stuff
+		ImGui::Begin("Transform", NULL, 0);
+		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+		ImGui::End();
 	}
 
 	void RenderScene(Teapot::Shader& shader)
@@ -106,6 +91,8 @@ public:
 	glm::mat4 view;
 
 private:
+	std::vector<Teapot::Model*> models;
+
 	Shapes::Cylinder cylender;
 	Shapes::Plane plane;
 	Shapes::Cube cube;
@@ -113,6 +100,7 @@ private:
 	Shapes::Sphere sphere;
 	
 	Teapot::Camera* camera;
+	Teapot::Shadow* shadow;
 
 	Teapot::Model* cubeModel;
 	Teapot::Model* planeModel;
@@ -121,21 +109,19 @@ private:
 	Teapot::Model* sphereModel;
 
 	Teapot::Shader shaderDepthBasic;
-	Teapot::Shader shaderDepthDebug;
 	Teapot::Shader shaderBasic;
 
 	glm::vec3 cameraPos = glm::vec3(3.0f, 3.0f, 3.0f);
 	glm::vec3 cameraCenter = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 cameraUp = glm::vec3(0.0f, 0.0f, 1.0f);
 
-	const glm::vec3 lightPos = glm::vec3(5.0f, 1.0f, 5.0f);
-
-	Teapot::ShadowMapping* shadow;
+	glm::vec3 lightPos = glm::vec3(5.0f, 1.0f, 5.0f);
 };
 
 int main()
 {
-	Sandbox* s = new Sandbox();
+	Teapot::WindowProps windowProps = { "Shape Demo", 1280, 720};
+	Sandbox* s = new Sandbox(windowProps);
 	s->GetWindow().GetWidth();
 	s->Run();
 	s->OnUpdate();
