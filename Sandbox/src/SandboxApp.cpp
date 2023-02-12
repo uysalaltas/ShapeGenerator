@@ -59,6 +59,7 @@ public:
 		view = camera->GetViewMatrix();
 		projection = camera->GetProjMatrix();
 		camera->CalculateArcballCamera();
+		camera->CalculatePanCamera();
 		
 		shaderBasic.Bind();
 		shaderBasic.SetUniformMat4f("view", view);
