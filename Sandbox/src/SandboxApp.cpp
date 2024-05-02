@@ -14,8 +14,8 @@ public:
 		, cubeLight		(0.10f, glm::vec3(1.0f,  1.0f , 1.0f))
 		, pyramid		(0.30f, glm::vec3(0.20f, 0.71f, 0.29f), 2.0f, 4, 1.0f, 0.0f)
 		, sphere		(0.30f, glm::vec3(0.20f, 0.25f, 1.0f), 30.0f, 30.0f)
-		, shaderDepthBasic	("src/BasicDepth.shader")
-		, shaderBasic		("src/Basic.shader")
+		, shaderDepthBasic	("../vendor/Teapot/Teapot/shaders/BasicDepth.shader")
+		, shaderBasic		("../vendor/Teapot/Teapot/shaders/PBR_NoTexture.shader")
 	{
 		camera = new Teapot::Camera(cameraPos, cameraCenter, cameraUp, (int*)this->GetWindow().GetWidthRef(), (int*)this->GetWindow().GetHeigthRef());
 
