@@ -9,7 +9,7 @@ public:
 	Sandbox(const Teapot::WindowProps& props = Teapot::WindowProps::WindowProps()) : 
 		Teapot::Application(props)
 		, cylender		(0.30f, glm::vec3(1.0f, 0.15f, 0.50f))
-		, plane			(10, 10, 1.0f, glm::vec3(0.78f, 0.95f, 1.0f))
+		, plane			(10, 10, 1.0f, glm::vec3(0.20f, 0.15f, 0.15f))
 		, cube			(0.30f, glm::vec3(1.0f,  0.87f, 0.0f))
 		, cubeLight		(0.10f, glm::vec3(1.0f,  1.0f , 1.0f))
 		, pyramid		(0.30f, glm::vec3(0.20f, 0.71f, 0.29f), 2.0f, 4, 1.0f, 0.0f)
@@ -71,6 +71,10 @@ public:
 		shaderBasic.SetUniformMat4f("lightSpaceMatrix", shadow->GetLightSpaceMatrix());
 		shaderBasic.SetUniformVec3f("camPos", camera->GetEye());
 		shaderBasic.SetUniformVec3f("lightPos", lightPos);
+
+		shaderBasic.SetUniform1f("ambientStrength", ambientStrength);
+		shaderBasic.SetUniform1f("specularStrength", specularStrength);
+		shaderBasic.SetUniform1f("shininess", shininess);
 		
 		shadow->BindShadow();
 		RenderScene(shaderBasic);
@@ -82,6 +86,10 @@ public:
 		ImGui::Begin("Transform", NULL, 0);
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 		ImGui::SliderFloat3("Light Position", &lightPos[0], -10.0f, 10.0f);
+		ImGui::SliderFloat("Ambient Strength", &ambientStrength, 0.0f, 1.0f);
+		ImGui::SliderFloat("Specular Strength", &specularStrength, 0.0f, 1.0f);
+		ImGui::SliderFloat("Shininess", &shininess, 0.0f, 256.0f);
+
 		ImGui::End();
 	}
 
@@ -127,6 +135,10 @@ private:
 	glm::vec3 cameraCenter = glm::vec3(0.0f, 0.0f, 0.0f);
 	glm::vec3 cameraUp     = glm::vec3(0.0f, 0.0f, 1.0f);
 	glm::vec3 lightPos     = glm::vec3(1.0f, 1.0f, 5.0f);
+
+	float ambientStrength  = 0.40f;
+	float specularStrength = 0.35f;
+	float shininess	       = 50.0f;
 };
 
 int main()
