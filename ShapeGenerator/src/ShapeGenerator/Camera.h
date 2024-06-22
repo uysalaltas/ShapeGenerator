@@ -62,8 +62,8 @@ namespace Shapes
         {
             glm::vec4 position(GetEye().x, GetEye().y, GetEye().z, 1);
             glm::vec4 pivot(GetLookAt().x, GetLookAt().y, GetLookAt().z, 1);
-            float deltaAngleX = (2 * M_PI / m_width);
-            float deltaAngleY = (M_PI / m_height);
+            float deltaAngleX = (float)(2 * M_PI / m_width);
+            float deltaAngleY = (float)(M_PI / m_height);
             float xAngle = deltaX * deltaAngleX;
             float yAngle = deltaY * deltaAngleY;
 

@@ -11,41 +11,34 @@ public:
 		, cylender (0.30f, glm::vec3(1.0f, 0.15f, 0.50f))
 		, plane    (10, 10, 1.0f, glm::vec3(0.20f, 0.15f, 0.15f))
 		, cube     (0.30f, glm::vec3(1.0f,  0.87f, 0.0f))
-		, cubeLight(0.10f, glm::vec3(1.0f,  1.0f , 1.0f))
 		, pyramid  (0.30f, glm::vec3(0.20f, 0.71f, 0.29f), 2.0f, 4, 1.0f, 0.0f)
-		, sphere   (0.30f, glm::vec3(0.20f, 0.25f, 1.0f), 30.0f, 30.0f)
+		, sphere   (0.30f, glm::vec3(0.20f, 0.25f, 1.0f), 30, 30)
 	{
-		camera = new Teapot::Camera(cameraPos, cameraCenter, cameraUp, this->GetWindow().GetWidthRef(), this->GetWindow().GetHeigthRef());
+		cubeModel      = std::make_unique<Teapot::Model>(cube.ShapePositions()     , cube.ShapeColors()     , cube.ShapeNormals()     , cube.ShapeIndices()     , "Cube");
+		planeModel     = std::make_unique<Teapot::Model>(plane.ShapePositions()    , plane.ShapeColors()    , plane.ShapeNormals()    , plane.ShapeIndices()    , "Plane");
+		pyramidModel   = std::make_unique<Teapot::Model>(pyramid.ShapePositions()  , pyramid.ShapeColors()  , pyramid.ShapeNormals()  , pyramid.ShapeIndices()  , "Pyramid");
+		cylinderModel  = std::make_unique<Teapot::Model>(cylender.ShapePositions() , cylender.ShapeColors() , cylender.ShapeNormals() , cylender.ShapeIndices() , "Cylender");
+		sphereModel    = std::make_unique<Teapot::Model>(sphere.ShapePositions()   , sphere.ShapeColors()   , sphere.ShapeNormals()   , sphere.ShapeIndices()   , "Sphere");
 
-		cubeModel      = new Teapot::Model(cube.ShapePositions()     , cube.ShapeColors()     , cube.ShapeNormals()     , cube.ShapeIndices()     , "Cube");
-		//cubeLightModel = new Teapot::Model(cubeLight.ShapePositions(), cubeLight.ShapeColors(), cubeLight.ShapeNormals(), cubeLight.ShapeIndices(), "Light");
-		planeModel     = new Teapot::Model(plane.ShapePositions()    , plane.ShapeColors()    , plane.ShapeNormals()    , plane.ShapeIndices()    , "Plane");
-		pyramidModel   = new Teapot::Model(pyramid.ShapePositions()  , pyramid.ShapeColors()  , pyramid.ShapeNormals()  , pyramid.ShapeIndices()  , "Pyramid");
-		cylinderModel  = new Teapot::Model(cylender.ShapePositions() , cylender.ShapeColors() , cylender.ShapeNormals() , cylender.ShapeIndices() , "Cylender");
-		sphereModel    = new Teapot::Model(sphere.ShapePositions()   , sphere.ShapeColors()   , sphere.ShapeNormals()   , sphere.ShapeIndices()   , "Sphere");
+		teaCup = std::make_unique<Teapot::Model>("coffee_cup_obj.obj", "cup");
 
 		cubeModel     ->Translate(glm::vec3( 1.0f,  0.0f,  0.0f ));
 		planeModel    ->Translate(glm::vec3(-5.0f, -5.0f, -0.3f ));
 		pyramidModel  ->Translate(glm::vec3( 2.0f,  0.0f,  0.0f ));
 		cylinderModel ->Translate(glm::vec3(-1.0f,  0.0f,  0.0f ));
+		teaCup        ->Translate(glm::vec3( 0.0f, -2.0f,  0.0f ));
+		teaCup        ->Rotate(glm::vec3(90.0f, 0.0f, 0.0f));
+		Teapot::Model::s_SelectedModel = 5;
 
-		shaderManager->SetShaderValues(*camera);
 		shaderManager->CreateDirectionalLight(dirLight);
-		shaderManager->CreatePointLight(pointLight);
-		shaderManager->CreatePointLight(pointLight);
-		shaderManager->CreatePointLight(pointLight);
-		shaderManager->CreatePointLight(pointLight);
-		shaderManager->CreateSpotLight(spotLight);
-	}
-
-	~Sandbox()
-	{
-		delete camera;
-		delete cubeModel;
-		delete planeModel;
-		delete cylinderModel;
-		delete pyramidModel;
-		delete sphereModel;
+		//shaderManager->CreateDirectionalLight(dirLight);
+		//shaderManager->CreateDirectionalLight(dirLight);
+		//shaderManager->CreatePointLight(pointLight);
+		//shaderManager->CreatePointLight(pointLight);
+		//shaderManager->CreatePointLight(pointLight);
+		//shaderManager->CreatePointLight(pointLight);
+		//shaderManager->CreateSpotLight(spotLight);
+		//shaderManager->CreateSpotLight(spotLight);
 	}
 
 	void OnUpdateAwake() override
@@ -60,25 +53,23 @@ public:
 		camera->ZoomCamera();
 
 		RenderScene();
-
 		//cubeLightModel->Translate(shaderManager->GetLightPos());
 		
 		// Ui Stuff
-		//ImGui::ShowDemoWindow();
-		shaderManager->UIModifySpotLight();
-		shaderManager->UIModifyPointLight();
+		//shaderManager->UIModifySpotLight();
+		//shaderManager->UIModifyPointLight();
 		shaderManager->UIModifyDirectionLight();
+		windowUI->UIGizmos();
 
-		ImGui::Begin("Transform", NULL, 0);
-		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-		ImGui::End();
+		ImGui::ShowDemoWindow();
 	}
 
 	void RenderScene()
 	{
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		teaCup->Draw();
+
 		cubeModel     ->Draw();
-		//cubeLightModel->Draw();
 		planeModel    ->Draw();
 		pyramidModel  ->Draw();
 		cylinderModel ->Draw();
@@ -89,21 +80,16 @@ private:
 	Shapes::Cylinder cylender;
 	Shapes::Plane    plane;
 	Shapes::Cube     cube;
-	Shapes::Cube     cubeLight;
 	Shapes::Cylinder pyramid;
 	Shapes::Sphere   sphere;
-	
-	Teapot::Camera* camera;
-	Teapot::Model* cubeModel;
-	//Teapot::Model* cubeLightModel;
-	Teapot::Model* planeModel;
-	Teapot::Model* cylinderModel;
-	Teapot::Model* pyramidModel;
-	Teapot::Model* sphereModel;
 
-	glm::vec3 cameraPos    { 3.0f, 3.0f, 3.0f };
-	glm::vec3 cameraCenter { 0.0f, 0.0f, 0.0f };
-	glm::vec3 cameraUp     { 0.0f, 0.0f, 1.0f };
+	std::unique_ptr<Teapot::Model> cubeModel;
+	std::unique_ptr<Teapot::Model> planeModel;
+	std::unique_ptr<Teapot::Model> cylinderModel;
+	std::unique_ptr<Teapot::Model> pyramidModel;
+	std::unique_ptr<Teapot::Model> sphereModel;
+
+	std::unique_ptr<Teapot::Model> teaCup;
 
 	float ambientStrength  = 0.40f;
 	float specularStrength = 0.35f;
